@@ -1,0 +1,42 @@
+<nav class="col-md-3 col-lg-2 d-md-block sidebar collapse bg-white">
+  <div class="position-sticky">
+
+      <ul class="nav nav-pills flex-column mt-4" id="navbar-protein">
+        <li class="nav-item">
+          <a class="nav-link" href="#Summary">
+            Summary
+          </a>
+        </li>
+        {% for protein in affected_proteins %}
+          <li class="nav-item">
+            <a class="nav-link" href="#{{ protein }}">
+              {{ protein }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <hr>
+
+      <p>Limit the results to a specific allele</p>
+      <select 
+        class="selectpicker show-tick form-control pb-4"
+        data-style="btn-primary"
+        data-live-search="true"
+        data-dropdown-align-right="true"
+        data-window-padding="[56, 0, 0, 0]"
+        data-container="body"
+        onchange="location = this.value;"
+      >
+        <option value="{{ gisaid_id }}">All alleles</option>
+        {% for allele_ in alleles %}
+          {% if allele_ == allele %}
+          <option value="/stats/{{ gisaid_id }}?hla_class={{ hla_class }}&allele={{ allele_ }}" selected>{{ allele_ }}</option>
+          {% else %}
+            <option value="/stats/{{ gisaid_id }}?hla_class={{ hla_class }}&allele={{ allele_ }}">{{ allele_ }}</option>
+          {% endif %}
+        {% endfor %} 
+      </select>
+
+  </div>
+</nav>
