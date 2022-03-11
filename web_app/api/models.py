@@ -1,26 +1,30 @@
 from web_app import db
 
-'''
-class HLAAlleles(db.Model):
-    hla_allele = db.Column(db.Text, primary_key=True)
-    gene = db.Column(db.Text, nullable=False)
-    HLA_class = db.Column(db.Enum('I', 'II', name='HLA_class'), nullable=False)
 
+class Isomirnas(db.Model):
+    isomirna = db.Column(db.Text, primary_key=True)
+    ts_full_mirdb_short_comparasion = db.Column(db.Float)
+    ts_short_mirdb_short_comparasion = db.Column(db.Float)
 
-class Peptides(db.Model):
-    peptide = db.Column(db.Text, primary_key=True)
+class Genes(db.Model):
+    gene = db.Column(db.Text, primary_key=True)
 
+class Targets(db.Model):
+    isomirna = db.Column(db.Text, db.ForeignKey('isomirnas.isomirna', ondelete='CASCADE'), primary_key=True, index=True)
+    gene = db.Column(db.Text, db.ForeignKey('genes.gene', ondelete='CASCADE'), primary_key=True, index=True)
+    target_score = db.Column(db.SmallInteger)
+    cwcs = db.Column(db.Float)
 
-class PeptidesPositions(db.Model):
-    peptide = db.Column(db.Text, db.ForeignKey('peptides.peptide', ondelete='CASCADE'), primary_key=True, index=True)
-    protein = db.Column(db.Text, primary_key=True, index=True)
-    start = db.Column(db.SmallInteger, primary_key=True, index=True)
-    end = db.Column(db.SmallInteger, primary_key=True, index=True)
-    gisaid_id = db.Column(db.Text, primary_key=True, index=True)
+class Comparasion_ts_1(db.Model):
+    isomirna = db.Column(db.Text, db.ForeignKey('isomirnas.isomirna', ondelete='CASCADE'), primary_key=True)
+    ts_count = db.Column(db.SmallInteger)
+    ts_count_1 = db.Column(db.SmallInteger)
+    ts_intersection_1 = db.Column(db.Float)
+    ts_union_1 = db.Column(db.Float)
 
-
-class HLAAllelesPeptides(db.Model):
-    hla_allele = db.Column(db.Text, db.ForeignKey('hla_alleles.hla_allele', ondelete='CASCADE'), primary_key=True, index=True)
-    peptide = db.Column(db.Text, db.ForeignKey('peptides.peptide', ondelete='CASCADE'), primary_key=True, index=True)
-    affinity = db.Column(db.SmallInteger, nullable=False, index=True)
-'''
+class Comparasion_mirdb_1(db.Model):
+    isomirna = db.Column(db.Text, db.ForeignKey('isomirnas.isomirna', ondelete='CASCADE'), primary_key=True)
+    mirdb_count = db.Column(db.SmallInteger)
+    mirdb_count_1 = db.Column(db.SmallInteger)
+    mirdb_intersection_1 = db.Column(db.Float)
+    mirdb_union_1 = db.Column(db.Float)
