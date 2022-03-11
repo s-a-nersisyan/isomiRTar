@@ -1,4 +1,4 @@
-from app import db
+from web_app import db
 
 '''
 class HLAAlleles(db.Model):
