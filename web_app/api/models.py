@@ -1,26 +1,17 @@
 from web_app import db
 
-'''
-class HLAAlleles(db.Model):
-    hla_allele = db.Column(db.Text, primary_key=True)
-    gene = db.Column(db.Text, nullable=False)
-    HLA_class = db.Column(db.Enum('I', 'II', name='HLA_class'), nullable=False)
+
+class Molecules(db.Model):
+    # Molecule = gene or isomiR
+    molecule = db.Column(db.Text, primary_key=True)
 
 
-class Peptides(db.Model):
-    peptide = db.Column(db.Text, primary_key=True)
+class Cancers(db.Model):
+    cancer = db.Column(db.Text, primary_key=True)
 
 
-class PeptidesPositions(db.Model):
-    peptide = db.Column(db.Text, db.ForeignKey('peptides.peptide', ondelete='CASCADE'), primary_key=True, index=True)
-    protein = db.Column(db.Text, primary_key=True, index=True)
-    start = db.Column(db.SmallInteger, primary_key=True, index=True)
-    end = db.Column(db.SmallInteger, primary_key=True, index=True)
-    gisaid_id = db.Column(db.Text, primary_key=True, index=True)
-
-
-class HLAAllelesPeptides(db.Model):
-    hla_allele = db.Column(db.Text, db.ForeignKey('hla_alleles.hla_allele', ondelete='CASCADE'), primary_key=True, index=True)
-    peptide = db.Column(db.Text, db.ForeignKey('peptides.peptide', ondelete='CASCADE'), primary_key=True, index=True)
-    affinity = db.Column(db.SmallInteger, nullable=False, index=True)
-'''
+class Expression(db.Model):
+    molecule = db.Column(db.Text, db.ForeignKey('molecules.molecule', ondelete='CASCADE'), primary_key=True, index=True)
+    cancer = db.Column(db.Text, db.ForeignKey('cancers.cancer', ondelete='CASCADE'), primary_key=True, index=True)
+    expression = db.Column(db.ARRAY(db.Numeric(precision=4, scale=1)), nullable=False)
+    highly_expressed = db.Column(db.Boolean, nullable=False)

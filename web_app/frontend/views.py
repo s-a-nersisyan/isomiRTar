@@ -17,6 +17,21 @@ from flask import jsonify
 
 @frontend.route("/", methods=["GET"])
 def show_index():
-    # Load table with available COVID-19 lineages
-    
+    '''
+    TODO
+    '''
     return render_template("index.html")
+
+
+@frontend.route("/isomiR/<isomiR>", methods=["GET"])
+def show_isomiR(isomiR):
+    '''
+    Show information about a specified isomiR:
+        - Pan-cancer expression distribution
+        - Predicted miRDB/TargetScan targets
+        - Pan-cancer anti-correlation patterns
+        - TODO: cancer-universal targets
+        - TODO: links to the neighboring isomiRs
+    '''
+
+    return render_template("isomiR.html")

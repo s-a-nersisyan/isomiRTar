@@ -130,4 +130,5 @@ dmypy.json
 
 # Custom
 db/postgresql_data/
+db/raw_text_tables/
 config.py
