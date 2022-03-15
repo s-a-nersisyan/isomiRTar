@@ -1,23 +1,24 @@
 <!doctype html>
 <html lang="en">
   {% include 'head.html' %}
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='lib/gh-fork-ribbon-0.2.3-dist/css/gh-fork-ribbon.min.css') }}">
-  
-  <body>
-    
-    <div class="container">
 
-      <h1 class="display-4 text-center mt-4">isomiRTar</h1>
-      <div class="lead text-center">
-        TODO
+  <body style="position: relative;">
+    {% include 'top_menu.html' %}
+
+    <div class="container-fluid">
+      <div class="row">
+        {% include 'sidebar.html' %}
+
+        <div class="col-10 offset-2 px-3 content">
+          <h2>Pan-cancer expression distribution</h2>
+          <div>
+            <div id="expression-plot"></div>
+            <p class="">*Inlcuded in the list of 5'-isomiRs contributing to 95% of total reads from the corresponding cancer</p>
+          </div>
+        </div>
+
       </div>
-
-      <div id="myDiv"></div>
-      
     </div>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
-    <a class="github-fork-ribbon" href="https://github.com/s-a-nersisyan/isomiRTar" target="_blank" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
     
     {% include 'footer.html' %}
     <script src="{{ url_for('static', filename='lib/plotly-2.9.0-dist/js/plotly.min.js') }}"></script>
