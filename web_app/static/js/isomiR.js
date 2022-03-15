@@ -15,7 +15,7 @@ d3.csv(`/api/isomiR/${isomiR}/expression`, function(err, rows){
     title: "",
     yaxis: {
       title: {
-        text: `${isomiR} (TMM-RPM)`,
+        text: `${isomiR} (RPM)`,
         standoff: 171717
       },
       zeroline: false

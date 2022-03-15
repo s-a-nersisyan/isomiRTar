@@ -10,11 +10,21 @@
         {% include 'sidebar.html' %}
 
         <div class="col-10 offset-2 px-3 content">
-          <h2>Pan-cancer expression distribution</h2>
+
+          <h2 id="expression">TCGA expression profiles</h2>
           <div>
             <div id="expression-plot"></div>
-            <p class="">*Inlcuded in the list of 5'-isomiRs contributing to 95% of total reads from the corresponding cancer</p>
+            <p class="">*Inlcuded in the list of 5'-isomiRs contributing to 95% of total reads in the corresponding cancer</p>
           </div>
+
+          <h2 id="targets">Targets</h2>
+          1. miRDB and TargetScan predictions, intersection (with download button or table)
+          2. Anti-correlated target genes in each cancer + links to cancer/isomiR
+          3. Cancer-universal targets
+          <h2 id="targets">Neighboring 5'-isomiRs</h2>
+          1. List + something about expression (e.g., where it is highly expressed)
+          2. Common targets
+
         </div>
 
       </div>

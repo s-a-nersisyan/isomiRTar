@@ -13,5 +13,6 @@ class Cancers(db.Model):
 class Expression(db.Model):
     molecule = db.Column(db.Text, db.ForeignKey('molecules.molecule', ondelete='CASCADE'), primary_key=True, index=True)
     cancer = db.Column(db.Text, db.ForeignKey('cancers.cancer', ondelete='CASCADE'), primary_key=True, index=True)
-    expression = db.Column(db.ARRAY(db.Numeric(precision=4, scale=1)), nullable=False)
+    tmm = db.Column(db.ARRAY(db.Numeric(precision=4, scale=1)), nullable=False)
+    tpm = db.Column(db.ARRAY(db.Numeric(precision=4, scale=1)), nullable=False)
     highly_expressed = db.Column(db.Boolean, nullable=False)

@@ -18,7 +18,7 @@ def get_isomiR_expression(isomiR):
     dfs = []
     for res in results:
         df = pd.DataFrame(columns=["isomiR", "cancer", "expression"])
-        df["expression"] = res.expression
+        df["expression"] = res.tpm
         df["isomiR"] = isomiR
         df["cancer"] = res.cancer + ("*" if res.highly_expressed else "")
         dfs.append(df)
