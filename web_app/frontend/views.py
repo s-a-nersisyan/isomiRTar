@@ -23,15 +23,15 @@ def show_index():
     return render_template("index.html")
 
 
-@frontend.route("/isomiR/<isomiR>", methods=["GET"])
-def show_isomiR(isomiR):
+@frontend.route("/molecule/<molecule>", methods=["GET"])
+def show_molecule(molecule):
     '''
-    Show information about a specified isomiR:
+    Show information about a specified molecule:
         - Pan-cancer expression distribution
         - Predicted miRDB/TargetScan targets
         - Pan-cancer anti-correlation patterns
         - TODO: cancer-universal targets
-        - TODO: links to the neighboring isomiRs
+        - TODO: links to the neighboring molecules
     '''
 
-    return render_template("isomiR.html")
+    return render_template("molecule/main.html")

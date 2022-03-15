@@ -6,20 +6,20 @@ from flask import make_response
 import pandas as pd
 
 
-@api.route("/isomiR/<isomiR>/expression", methods=["GET"])
-def get_isomiR_expression(isomiR):
+@api.route("/molecule/<molecule>/expression", methods=["GET"])
+def get_molecule_expression(molecule):
     '''
-        Return csv table with pan-cancer isomiR expression distribution:
+        Return csv table with pan-cancer molecule expression distribution:
         cancer,sample,expression
     '''
-    # TODO: check that isomiR is in the list of molecules
+    # TODO: check that molecule is in the list of molecules
     # TODO: perhaps write some function to do this automatically?
-    results = Expression.query.filter(Expression.molecule == isomiR).all()
+    results = Expression.query.filter(Expression.molecule == molecule).all()
     dfs = []
     for res in results:
-        df = pd.DataFrame(columns=["isomiR", "cancer", "expression"])
+        df = pd.DataFrame(columns=["molecule", "cancer", "expression"])
         df["expression"] = res.tpm
-        df["isomiR"] = isomiR
+        df["molecule"] = molecule
         df["cancer"] = res.cancer + ("*" if res.highly_expressed else "")
         dfs.append(df)
     df = pd.concat(dfs)

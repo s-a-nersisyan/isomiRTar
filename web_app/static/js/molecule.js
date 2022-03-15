@@ -1,6 +1,6 @@
-isomiR = window.location.href.split("/").pop();
-isomiR = isomiR.split("#")[0];
-d3.csv(`/api/isomiR/${isomiR}/expression`, function(err, rows){
+molecule = window.location.href.split("/").pop();
+molecule = molecule.split("#")[0];
+d3.csv(`/api/molecule/${molecule}/expression`, function(err, rows){
   function unpack(rows, key) {
     return rows.map(function(row) { return row[key]; });
   }
@@ -13,12 +13,15 @@ d3.csv(`/api/isomiR/${isomiR}/expression`, function(err, rows){
 
   var layout = {
     title: "",
+    xaxis: {
+      tickangle: -90
+    },
     yaxis: {
       title: {
-        text: `${isomiR} (RPM)`,
+        text: `${molecule} (RPM)`,
         standoff: 171717
       },
-      zeroline: false
+      zeroline: false,
     },
     margin: {
       r: 0
