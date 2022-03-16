@@ -35,3 +35,17 @@ def show_molecule(molecule):
     '''
 
     return render_template("molecule/main.html")
+
+
+@frontend.route("/miRNA/<miRNA>", methods=["GET"])
+def show_miRNA(miRNA):
+    '''
+    Show information about a specified miRNA:
+        - Pan-cancer expression distribution
+        - Predicted miRDB/TargetScan targets
+        - Pan-cancer anti-correlation patterns
+        - TODO: cancer-universal targets
+        - TODO: links to the neighboring miRNAs
+    '''
+
+    return render_template("miRNA/main.html")

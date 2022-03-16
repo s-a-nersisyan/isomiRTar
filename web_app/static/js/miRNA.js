@@ -1,22 +1,23 @@
 molecule = window.location.href.split("/").pop();
 molecule = molecule.split("#")[0];
-d3.json(`/api/molecule/${molecule}/expression`, function(err, data){
-
+d3.json(`/api/miRNA/${molecule}/expression`, function(err, data){
   var layout = {
     title: "",
+    height: data.length * data[0]["num_cancers"] * 30,
     xaxis: {
-      tickangle: -90
-    },
-    yaxis: {
+      side: "top",
       title: {
         text: `${molecule} (RPM)`,
-        standoff: 171717
+        standoff: 0
       },
       zeroline: false,
     },
+    yaxis: {
+    },
     margin: {
       r: 0
-    }
+    },
+    boxmode: "group"
   }
 
   var config = {responsive: true}
