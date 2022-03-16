@@ -10,7 +10,7 @@ from tqdm import tqdm
 #################
 # 1. Generate core tables: Molecules, Cancers, Expression
 #################
-
+'''
 expr_path = "raw_text_tables/expression/TMM-RPM/"
 he_path = "raw_text_tables/expression/highly_expressed_isomiRs/"
 dfs = []
@@ -49,3 +49,63 @@ Cancers = pd.DataFrame({"cancer": Expression["cancer"].unique()})
 
 for fn in ["Molecules", "Cancers", "Expression"]:
     eval(fn).to_csv(f"postgresql_data/csv/{fn}.csv", index=None, quoting=csv.QUOTE_ALL)
+'''
+#################
+# 2. Generate target tables
+#################
+
+expr = pd.read_csv("postgresql_data/csv/Expression.csv")
+expr["tpm"] = expr["tpm"].str[1:-1]
+expr["median_tpm"] = [np.median([float(v) for v in t.split(",")]) for t in tqdm(expr["tpm"])]
+expr.index = expr["molecule"] + "," + expr["cancer"]
+expr = expr[["median_tpm"]]
+
+miRDB_path = "raw_text_tables/miRDB"
+TargetScan_path = "raw_text_tables/TargetScan"
+dfs = []
+for fn in tqdm(os.listdir(f"{miRDB_path}/corr_analysis")):
+    if "tumor" not in fn or "raw" not in fn:
+        continue
+    fn2 = fn.replace("_raw", "")
+    
+    df1 = pd.read_csv(f"{miRDB_path}/corr_analysis/{fn}", sep="\t")
+    df2 = pd.read_csv(f"{miRDB_path}/predicted_targets/{fn2}", sep="\t")
+    df1.index = df1["isomiR"] + "," + df1["gene"]
+    df2.index = df2["isomiR"] + "," + df2["Gene Symbol"]
+    miRDB = df1[["corr"]].join(df2[["Target Score"]])
+    miRDB = miRDB.rename(columns={"corr": "spearman_corr_miRDB", "Target Score": "mirdb_score"})
+    
+    df1 = pd.read_csv(f"{TargetScan_path}/corr_analysis/{fn}", sep="\t")
+    df2 = pd.read_csv(f"{TargetScan_path}/predicted_targets/{fn2}", sep="\t")
+    df1.index = df1["isomiR"] + "," + df1["gene"]
+    df2.index = df2["isomiR"] + "," + df2["Gene Symbol"]
+    TargetScan = df1[["corr"]].join(df2[["CWCS"]])
+    TargetScan = TargetScan.rename(columns={"corr": "spearman_corr_TargetScan", "CWCS": "targetscan_score"})
+    
+    df = miRDB.join(TargetScan, how="outer")
+    miRDB_only = df["targetscan_score"].isna()
+    df["spearman_corr"] = df["spearman_corr_TargetScan"]
+    df.loc[miRDB_only, "spearman_corr"] = df.loc[miRDB_only, "spearman_corr_miRDB"]
+   
+    df["isomir"] = df.index.str.split(",").str[0]
+    df["target"] = df.index.str.split(",").str[1]
+    df["cancer"] = fn.split("_")[0][5:]
+    
+    df.index = df["isomir"] + "," + df["cancer"]
+    df = df.join(expr.rename(columns={"median_tpm": "isomir_median_tpm"}))
+    df.index = df["target"] + "," + df["cancer"]
+    df = df.join(expr.rename(columns={"median_tpm": "target_median_tpm"}))
+    df = df.reset_index()
+    del df["index"]
+
+    df = df[["isomir", "target", "cancer", "mirdb_score", "targetscan_score", "spearman_corr", "isomir_median_tpm", "target_median_tpm"]]
+    df["mirdb_score"] = df["mirdb_score"].astype("Int64").astype("string")
+    df["targetscan_score"] = df["targetscan_score"].round(1).astype("string")
+    df["spearman_corr"] = df["spearman_corr"].round(2).astype("string")
+    df["isomir_median_tpm"] = df["isomir_median_tpm"].round(1).astype("string")
+    df["target_median_tpm"] = df["target_median_tpm"].round(1).astype("string")
+    df = df.fillna("NULL")
+    dfs.append(df)
+
+TargetsRaw = pd.concat(dfs)
+TargetsRaw.to_csv(f"postgresql_data/csv/Targets_raw.csv", index=None)
