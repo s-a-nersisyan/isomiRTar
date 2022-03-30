@@ -17,10 +17,37 @@
             <p class="">*Inlcuded in the list of 5'-isomiRs contributing to 95% of total reads in the corresponding cancer</p>
           </div>
 
-          <h2 id="targets">Targets</h2>
-          1. miRDB and TargetScan predictions, intersection (with download button or table)
-          2. Anti-correlated target genes in each cancer + links to cancer/isomiR
-          3. Cancer-universal targets
+          <h2 id="sequence-based-targets">Sequence-based predicted targets</h2>
+          Sequence-based target prediction (miRDB and TargetScan).
+          Write about miRDB >= 80 and TS harmonization. Disclaimer about non-cancer specificity.
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th class="align-top">Target gene</th>
+                <th class="align-top">miRDB Target Score</th>
+                <th class="align-top">TargetScan cumulative weighted context++ score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for target, row in targets_seq.iterrows()%}
+                <tr>
+                  <td style="width: 33.3%;">{{ target }}</td>
+                  <td style="width: 33.3%;">{{ row['mirdb_score'] }}</td>
+                  <td style="width: 33.3%;">{{ row['targetscan_score'] }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <h2 id="targets">Pan-cancer conserved targets</h2>
+          Table with target and number of cancers (n >= 10).
+          Heatmap with correlations with them. Disclaimer about < -0.3 corr.
+          <ul>
+            {% for target, cancers in targets_conserved %}
+              <li>{{ molecule }} &#x2192; {{ target }} in {{ cancers|length}} cancers: {{ ", ".join(cancers) }}</li>
+            {% endfor %}
+          </ul>
+
           <h2 id="targets">Neighboring 5'-isomiRs</h2>
           1. List + something about expression (e.g., where it is highly expressed)
           2. Common targets

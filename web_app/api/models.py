@@ -35,8 +35,8 @@ TODO Summary:
     isomir
     cancer
     isomir_median_tpm
-    predicted_targets
-    sign_corr (< -0.3)
+    predicted_targets (miRDB, TargetScan?)
+    sign_corr (< -0.3, miRDB, TargetScan?)
     adjusted_activity
     p_value
     FDR?
