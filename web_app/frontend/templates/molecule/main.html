@@ -43,8 +43,8 @@
           Table with target and number of cancers (n >= 10).
           Heatmap with correlations with them. Disclaimer about < -0.3 corr.
           <ul>
-            {% for target, cancers in targets_conserved %}
-              <li>{{ molecule }} &#x2192; {{ target }} in {{ cancers|length}} cancers: {{ ", ".join(cancers) }}</li>
+            {% for source, target, cancers in targets_conserved %}
+              <li>{{ source }} &#x2192; {{ target }} in {{ cancers|length}} cancers: {{ ", ".join(cancers) }}</li>
             {% endfor %}
           </ul>
 

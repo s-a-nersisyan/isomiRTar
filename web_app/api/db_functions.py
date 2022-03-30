@@ -2,6 +2,7 @@ from . import api
 from web_app import db
 from web_app.api.models import *
 
+from sqlalchemy import and_, or_
 from flask import make_response, jsonify
 
 import pandas as pd
@@ -24,17 +25,30 @@ def get_molecule_expression_pan_cancer(molecule, add_asterisk=True):
     return df
 
 
-def get_isomiR_targets_pan_cancer(isomiR):
-    query = Targets_raw.query.filter(Targets_raw.isomir == isomiR).statement
-    df = pd.read_sql(query, db.engine)
-    return df
+def get_molecule_targeting_pan_cancer(isomiR=None, target=None, add_asterisk=True):
+    if not isomiR and not target:
+        raise Exception("isomiR or target should be passed")
+    
+    filt = (Targets_raw.isomir == isomiR) if isomiR else (Targets_raw.target == target)
 
-
-def get_isomiR_highle_expressed_cancers(isomiR):
     query = (
-        Expression.query
-        .with_entities(Expression.cancer, Expression.highly_expressed)
-        .filter(Expression.molecule == isomiR).statement
+        Targets_raw.query
+        .filter(filt)
+        .join(Expression, and_(
+            Targets_raw.isomir == Expression.molecule,
+            Targets_raw.cancer == Expression.cancer
+        ))
+        .with_entities(
+            *list(Targets_raw.__table__.c) + [Expression.highly_expressed]
+        )
+        .statement
     )
-    df = pd.read_sql(query, db.engine).set_index("cancer")
+    df = pd.read_sql(query, db.engine)
+    
+    # Mark cancers, where isomiR is highly expressed
+    df["cancer"] = [
+        row["cancer"] + ("*" if add_asterisk and row["highly_expressed"] else "")
+        for _, row in df.iterrows()
+    ] 
+    
     return df
