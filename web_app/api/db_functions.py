@@ -97,3 +97,14 @@ def get_significant_interactions(cancer):
     df = pd.read_sql(query, db.engine)
 
     return df
+
+
+def get_isomirs_targeting_summary_in_cancer(cancer):
+    query = (
+        Targets_summary.query
+        .filter(Targets_summary.cancer == cancer)
+        .statement
+    )
+    df = pd.read_sql(query, db.engine)
+
+    return df

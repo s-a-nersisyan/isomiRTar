@@ -206,12 +206,15 @@ def show_cancer(cancer):
     '''
     interactions = get_significant_interactions(cancer)
     network = df_to_network(interactions)
-    print(interactions)
+    targets_summary = get_isomirs_targeting_summary_in_cancer(cancer)
+    targets_summary = targets_summary.sort_values("isomir_median_tpm", ascending=False)
+    targets_summary["isomir_median_tpm"] = (2**targets_summary["isomir_median_tpm"] - 1).round(1)
 
     return render_template(
         "cancer/main.html",
         interactions=interactions,
-        network=network
+        network=network,
+        targets_summary=targets_summary
     )
 
 

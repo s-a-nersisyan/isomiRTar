@@ -21,7 +21,29 @@
           </div>
 
           <h2>Highly expressed isomiRs</h2>
-          isomiR, median RPM, n_anticorr_targets
+          {% for he in [True, False] %}
+            Highly expressed isomiRs: {{ he }}
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th class="align-top">5'-isomiR</th>
+                  <th class="align-top">Median expression (RPM)</th>
+                  <th class="align-top">Number of targets predicted by miRDB or TargetScan*</th>
+                  <th class="align-top">Number of significantly anti-correlated targets</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for _, row in targets_summary.loc[targets_summary['highly_expressed'] == he].iterrows() %}
+                <tr>
+                    <td style="width: 25%;">{{ row['isomir'] }}</td>
+                    <td style="width: 25%;">{{ row['isomir_median_tpm'] }}</td>
+                    <td style="width: 25%;">{{ row['num_targets_expressed'] }}</td>
+                    <td style="width: 25%;">{{ row['num_targets_anticorrelated'] }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
         
         </div>
 
