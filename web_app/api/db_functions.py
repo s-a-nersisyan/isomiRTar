@@ -6,6 +6,7 @@ from sqlalchemy import and_, or_
 from flask import make_response, jsonify
 
 import pandas as pd
+import numpy as np
 
 
 def get_molecule_expression_pan_cancer(molecule, add_asterisk=True):
@@ -38,6 +39,17 @@ def get_miRNA_expression_pan_cancer(miRNA):
         dfs.append((molecule, df))
 
     return dfs
+
+
+def get_molecule_expression_in_cancer(molecule, cancer):
+    result = (
+        Expression.query
+        .filter(and_(
+            Expression.molecule == molecule,
+            Expression.cancer == cancer
+        ))
+    ).one()
+    return np.array(result.tpm, dtype=np.float64), result.highly_expressed
 
 
 def get_molecule_targeting_pan_cancer(isomiR=None, target=None, add_asterisk=True):

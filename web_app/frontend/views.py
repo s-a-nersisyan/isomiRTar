@@ -196,14 +196,6 @@ def df_to_network(interactions):
 
 @frontend.route("/cancer/<cancer>", methods=["GET"])
 def show_cancer(cancer):
-    '''
-    Show information about a specified miRNA:
-        - Pan-cancer expression distribution
-        - Predicted miRDB/TargetScan targets
-        - Pan-cancer anti-correlation patterns
-        - TODO: cancer-universal targets
-        - TODO: links to the neighboring miRNAs
-    '''
     interactions = get_significant_interactions(cancer)
     network = df_to_network(interactions)
     targets_summary = get_isomirs_targeting_summary_in_cancer(cancer)
@@ -233,5 +225,15 @@ def show_cancer_molecule(cancer, molecule):
         - TODO: cancer-universal targets
         - TODO: links to the neighboring miRNAs
     '''
-
-    return render_template("cancer_molecule/main.html")
+    
+    expression, highly_expressed = get_molecule_expression_in_cancer(molecule, cancer)
+    expression = [{
+        "name": moleculem
+        "x": expression.tolist(),
+        "type": "violin"
+    }]
+    
+    return render_template(
+        "cancer_molecule/main.html",
+        expression=expression
+    )
