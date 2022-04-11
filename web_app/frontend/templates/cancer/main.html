@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  {% include 'head.html' %}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/cancer.css') }}">
+
+  <body style="position: relative;">
+    {% include 'top_menu.html' %}
+
+    <div class="container-fluid">
+      <div class="row">
+        {% include 'molecule/sidebar.html' %}
+
+        <div class="col-10 offset-2 px-3 content">
+
+          <h2 id="expression">TCGA expression profiles</h2>
+          <div class="network-container">
+            <div id="network"></div>
+            <div id="loader" style="position: absolute; left: 50%; top: 50%; text-align: center;">
+              Loading the network<br>0%
+            </div>
+          </div>
+
+          <h2>Highly expressed isomiRs</h2>
+          isomiR, median RPM, n_anticorr_targets
+        
+        </div>
+
+      </div>
+    </div>
+    
+    {% include 'footer.html' %}
+    <script src="{{ url_for('static', filename='lib/d3-3.5.17-dist/js/d3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/vis-9.1.2-dist/js/vis-network.min.js') }}"></script>
+    <script>
+      var nodes = {{network["nodes"]|safe}};
+      var edges = {{network["edges"]|safe}};
+    </script>
+    <script src="{{ url_for('static', filename='js/cancer.js') }}"></script>
+
+  </body>
+</html>

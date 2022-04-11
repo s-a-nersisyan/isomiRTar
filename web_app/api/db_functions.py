@@ -25,6 +25,21 @@ def get_molecule_expression_pan_cancer(molecule, add_asterisk=True):
     return df
 
 
+def get_miRNA_expression_pan_cancer(miRNA):
+    '''
+        Returns json {"cancer": [...], "expression": [...]}
+    '''
+    results = Molecules.query.filter(Molecules.molecule.startswith(miRNA)).all()
+    isomiRs = sorted([i.molecule for i in results], key=lambda x: int(x.split("|")[1]))
+    dfs = []
+    for molecule in isomiRs:
+        df = get_molecule_expression_pan_cancer(molecule, add_asterisk=False)
+        df["expression"] = 2**df["expression"] - 1
+        dfs.append((molecule, df))
+
+    return dfs
+
+
 def get_molecule_targeting_pan_cancer(isomiR=None, target=None, add_asterisk=True):
     if not isomiR and not target:
         raise Exception("isomiR or target should be passed")
@@ -51,4 +66,34 @@ def get_molecule_targeting_pan_cancer(isomiR=None, target=None, add_asterisk=Tru
         for _, row in df.iterrows()
     ] 
     
+    return df
+
+
+def get_significant_interactions(cancer):
+    '''
+    Return list of isomiR->target interactions
+    with corr < -0.3, p < 0.05 and highly expressed isomiRs
+    '''
+    
+    filt = and_(
+        Targets_raw.cancer == cancer,
+        Targets_raw.spearman_corr < -0.3,
+        Targets_raw.spearman_p_value < 0.05
+    )
+    
+    query = (
+        Targets_raw.query
+        .filter(filt)
+        .join(Expression, and_(
+            Targets_raw.isomir == Expression.molecule,
+            Targets_raw.cancer == Expression.cancer,
+            Expression.highly_expressed == True
+        ))
+        .with_entities(
+            *list(Targets_raw.__table__.c)
+        )
+        .statement
+    )
+    df = pd.read_sql(query, db.engine)
+
     return df

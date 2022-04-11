@@ -72,20 +72,30 @@ for fn in tqdm(os.listdir(f"{miRDB_path}/corr_analysis")):
     df2 = pd.read_csv(f"{miRDB_path}/predicted_targets/{fn2}", sep="\t")
     df1.index = df1["isomiR"] + "," + df1["gene"]
     df2.index = df2["isomiR"] + "," + df2["Gene Symbol"]
-    miRDB = df1[["corr"]].join(df2[["Target Score"]])
-    miRDB = miRDB.rename(columns={"corr": "spearman_corr_miRDB", "Target Score": "mirdb_score"})
+    miRDB = df1[["corr", "p_value"]].join(df2[["Target Score"]])
+    miRDB = miRDB.rename(columns={
+        "corr": "spearman_corr_miRDB",
+        "p_value": "spearman_p_value_miRDB",
+        "Target Score": "mirdb_score"
+    })
     
     df1 = pd.read_csv(f"{TargetScan_path}/corr_analysis/{fn}", sep="\t")
     df2 = pd.read_csv(f"{TargetScan_path}/predicted_targets/{fn2}", sep="\t")
     df1.index = df1["isomiR"] + "," + df1["gene"]
     df2.index = df2["isomiR"] + "," + df2["Gene Symbol"]
-    TargetScan = df1[["corr"]].join(df2[["CWCS"]])
-    TargetScan = TargetScan.rename(columns={"corr": "spearman_corr_TargetScan", "CWCS": "targetscan_score"})
+    TargetScan = df1[["corr", "p_value"]].join(df2[["CWCS"]])
+    TargetScan = TargetScan.rename(columns={
+        "corr": "spearman_corr_TargetScan",
+        "p_value": "spearman_p_value_TargetScan",
+        "CWCS": "targetscan_score"
+    })
     
     df = miRDB.join(TargetScan, how="outer")
     miRDB_only = df["targetscan_score"].isna()
     df["spearman_corr"] = df["spearman_corr_TargetScan"]
     df.loc[miRDB_only, "spearman_corr"] = df.loc[miRDB_only, "spearman_corr_miRDB"]
+    df["spearman_p_value"] = df["spearman_p_value_TargetScan"]
+    df.loc[miRDB_only, "spearman_p_value"] = df.loc[miRDB_only, "spearman_p_value_miRDB"]
    
     df["isomir"] = df.index.str.split(",").str[0]
     df["target"] = df.index.str.split(",").str[1]
@@ -98,7 +108,7 @@ for fn in tqdm(os.listdir(f"{miRDB_path}/corr_analysis")):
     df = df.reset_index()
     del df["index"]
 
-    df = df[["isomir", "target", "cancer", "mirdb_score", "targetscan_score", "spearman_corr", "isomir_median_tpm", "target_median_tpm"]]
+    df = df[["isomir", "target", "cancer", "mirdb_score", "targetscan_score", "spearman_corr", "spearman_p_value", "isomir_median_tpm", "target_median_tpm"]]
     df["mirdb_score"] = df["mirdb_score"].astype("Int64").astype("string")
     df["targetscan_score"] = df["targetscan_score"].round(1).astype("string")
     df["spearman_corr"] = df["spearman_corr"].round(2).astype("string")

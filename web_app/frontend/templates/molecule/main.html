@@ -59,7 +59,9 @@
     
     {% include 'footer.html' %}
     <script src="{{ url_for('static', filename='lib/plotly-2.9.0-dist/js/plotly.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='lib/d3-3.5.17-dist/js/d3.min.js') }}"></script>
+    <script>
+      var data = {{expression|safe}};
+    </script>    
     <script src="{{ url_for('static', filename='js/molecule.js') }}"></script>
 
   </body>

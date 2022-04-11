@@ -53,7 +53,10 @@
   margin-top: 56px;
 }
 
-
+/* vis.js */
+.vis-network:focus {
+    outline: 0;
+}
 
 /* Footer */
 
