@@ -23,7 +23,11 @@
           <table class="table table-bordered table-striped">
             <thead>
               <tr>
-                <th class="align-top">Target gene</th>
+                {% if is_isomiR %}
+                  <th class="align-top">Target gene</th>
+                {% else %}
+                  <th class="align-top">5'-isomiR</th>
+                {% endif %}
                 <th class="align-top">miRDB Target Score</th>
                 <th class="align-top">TargetScan cumulative weighted context++ score</th>
               </tr>

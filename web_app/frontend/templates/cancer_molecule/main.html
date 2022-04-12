@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  {% include 'head.html' %}
+
+  <body style="position: relative;">
+    {% include 'top_menu.html' %}
+
+    <div class="container-fluid">
+      <div class="row">
+        {% include 'molecule/sidebar.html' %}
+
+        <div class="col-10 offset-2 px-3 content">
+
+          <h2 id="expression">TCGA expression profiles</h2>
+          <div>
+            <div id="expression-plot"></div>
+          </div>
+          
+          <h2 id="targets">Targets correlation analysis</h2>
+          Sequence-based target prediction (miRDB and TargetScan).
+          Write about miRDB >= 80 and TS harmonization. Disclaimer about expression of targets (for isomiR mode).
+          {% set target_dfs = [targets.loc[targets["highly_expressed"] == 'True'], targets.loc[targets["highly_expressed"] == 'False']] if not is_isomiR else [targets]  %}
+          {% for targets in target_dfs %}
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  {% if is_isomiR %}
+                    <th class="align-top">Target gene</th>
+                  {% else %}
+                    <th class="align-top">5'-isomiR</th>
+                  {% endif %}
+                  <th class="align-top">Spearman's<br>correlation</th>
+                  <th class="align-top"><i>p</i>-value</th>
+                  {% if is_isomiR %}
+                    <th class="align-top">Median<br>target<br>expression<br>(TPM)</th>
+                  {% else %}
+                    <th class="align-top">Median<br>isomiR<br>expression<br>(RPM)</th>
+                  {% endif %}
+                  <th class="align-top">miRDB<br>Target<br>Score</th>
+                  <th class="align-top">TargetScan<br>cumulative<br>weighted<br>context++<br>score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for target, row in targets.iterrows()%}
+                  <tr style="font-weight: {{ 'bold' if row['significant'] == 'True' else 'normal' }};">
+                    <td >{{ target }}</td>
+                    <td >{{ row['spearman_corr'] }}</td>
+                    <td >{{ row['spearman_p_value']|safe }}</td>
+                    <td >{{ row['target_median_tpm'] if is_isomiR else row['isomir_median_tpm'] }}</td>
+                    <td >{{ row['mirdb_score'] }}</td>
+                    <td >{{ row['targetscan_score'] }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
+        
+        </div>
+
+      </div>
+    </div>
+    
+    {% include 'footer.html' %}
+    <script src="{{ url_for('static', filename='lib/plotly-2.9.0-dist/js/plotly.min.js') }}"></script>
+    <script>
+      var data = {{ expression|safe }};
+    </script>
+    <script src="{{ url_for('static', filename='js/cancer_molecule.js') }}"></script>
+
+  </body>
+</html>

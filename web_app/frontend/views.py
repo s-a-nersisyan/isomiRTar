@@ -215,6 +215,16 @@ def show_cancer_custom(cancer):
     return render_template("cancer_custom/main.html")
 
 
+def html_p_value(p):
+    float_str = '{0:.2e}'.format(p)
+    base, exponent = float_str.split('e')
+
+    if 2 >= int(exponent) >= -2:
+        return '{:.3f}'.format(p)
+
+    return r'{0} &#x2715; 10<sup>{1}</sup>'.format(base, int(exponent))
+
+
 @frontend.route("/cancer_molecule/<cancer>/<molecule>", methods=["GET"])
 def show_cancer_molecule(cancer, molecule):
     '''
@@ -226,14 +236,52 @@ def show_cancer_molecule(cancer, molecule):
         - TODO: links to the neighboring miRNAs
     '''
     
+    # First, get expression data
     expression, highly_expressed = get_molecule_expression_in_cancer(molecule, cancer)
     expression = [{
-        "name": moleculem
+        "name": molecule,
         "x": expression.tolist(),
         "type": "violin"
     }]
+
+    # Then, retrieve the results of isomiR target prediction
+    if molecule.startswith("hsa-"):
+        is_isomiR = True
+        index_col = "target"
+        targets = get_molecule_targeting_in_cancer(cancer, isomiR=molecule)
+    else:
+        is_isomiR = False
+        index_col = "isomir"
+        targets = get_molecule_targeting_in_cancer(cancer, target=molecule)
     
+    targets = targets.sort_values("spearman_corr").set_index(index_col)
+    targets["significant"] = (targets["spearman_corr"] < -0.3) & (targets["spearman_p_value"] < 0.05)
+    print(targets)
+    targets["spearman_p_value"] = [html_p_value(p) for p in targets["spearman_p_value"]]
+    targets["mirdb_score"] = targets["mirdb_score"].astype("Int64")
+    targets["isomir_median_tpm"] = (2**targets["isomir_median_tpm"] - 1).round(1)
+    targets["target_median_tpm"] = (2**targets["target_median_tpm"] - 1).round(1)
+    targets = targets.astype("string").fillna("-")
+
+    '''
+    # Sort miRDB/TargetScan predictions according to the scores
+    targets_seq = targets_pan_cancer.set_index(index_col)[["mirdb_score", "targetscan_score"]]
+    targets_seq = targets_seq.loc[~targets_seq.index.duplicated()]
+    targets_seq["mirdb_score"] *= -1
+    df1 = targets_seq.loc[(targets_seq["mirdb_score"].notna()) & (targets_seq["targetscan_score"].notna())]
+    df2 = targets_seq.loc[(targets_seq["mirdb_score"].notna()) & (targets_seq["targetscan_score"].isna())]
+    df3 = targets_seq.loc[(targets_seq["mirdb_score"].isna()) & (targets_seq["targetscan_score"].notna())]
+    targets_seq = pd.concat([
+        df1.sort_values(["mirdb_score", "targetscan_score"]),
+        df2.sort_values("mirdb_score"),
+        df3.sort_values("targetscan_score")
+    ])
+    targets_seq["mirdb_score"] *= -1
+    '''
+
     return render_template(
         "cancer_molecule/main.html",
-        expression=expression
+        is_isomiR=is_isomiR,
+        expression=expression,
+        targets=targets
     )

@@ -81,6 +81,32 @@ def get_molecule_targeting_pan_cancer(isomiR=None, target=None, add_asterisk=Tru
     return df
 
 
+def get_molecule_targeting_in_cancer(cancer, isomiR=None, target=None):
+    if not isomiR and not target:
+        raise Exception("isomiR or target should be passed")
+    
+    filt = (Targets_raw.isomir == isomiR) if isomiR else (Targets_raw.target == target)
+
+    query = (
+        Targets_raw.query
+        .filter(and_(
+            filt,
+            Targets_raw.cancer == cancer
+        ))
+        .join(Expression, and_(
+            Targets_raw.isomir == Expression.molecule,
+            Targets_raw.cancer == Expression.cancer
+        ))
+        .with_entities(
+            *list(Targets_raw.__table__.c) + [Expression.highly_expressed]
+        )
+        .statement
+    )
+    df = pd.read_sql(query, db.engine)
+    
+    return df
+
+
 def get_significant_interactions(cancer):
     '''
     Return list of isomiR->target interactions
