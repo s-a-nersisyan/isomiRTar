@@ -9,6 +9,26 @@ import pandas as pd
 import numpy as np
 
 
+def check_molecule(molecule):
+    if Molecules.query.filter(Molecules.molecule == molecule).count() == 1:
+        return True
+    else:
+        return False
+
+def check_miRNA(miRNA):
+    if Molecules.query.filter(Molecules.molecule.startswith(miRNA)).count() > 0:
+        return True
+    else:
+        return False
+
+
+def check_cancer(cancer):
+    if Cancers.query.filter(Cancers.cancer == cancer).count() == 1:
+        return True
+    else:
+        return False
+
+
 def get_molecule_expression_pan_cancer(molecule, units="tpm", add_asterisk=True):
     '''
         Returns json {"cancer": [...], "expression": [...]}

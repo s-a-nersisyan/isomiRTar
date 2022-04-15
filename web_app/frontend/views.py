@@ -12,19 +12,14 @@ from scipy.stats import linregress, spearmanr
 
 @frontend.route("/", methods=["GET"])
 def show_index():
-    '''
-    TODO
-    '''
     return render_template("index.html")
 
 
 @frontend.route("/molecule/<molecule>", methods=["GET"])
 def show_molecule(molecule):
-    '''
-    Show information about a specified molecule:
-        - TODO: links to the neighboring molecules
-    '''
-    # TODO: check that molecule is in DB
+    if not check_molecule(molecule):
+        abort(400)
+    
     # First, get molecule expression for boxplot
     df = get_molecule_expression_pan_cancer(molecule)
     order = df.groupby("cancer").quantile(0.75).sort_values("expression", ascending=False).index
@@ -85,14 +80,9 @@ def show_molecule(molecule):
 
 @frontend.route("/miRNA/<miRNA>", methods=["GET"])
 def show_miRNA(miRNA):
-    '''
-    Show information about a specified miRNA:
-        - Pan-cancer expression distribution
-        - Predicted miRDB/TargetScan targets
-        - Pan-cancer anti-correlation patterns
-        - TODO: cancer-universal targets
-        - TODO: links to the neighboring miRNAs
-    '''
+    if not check_miRNA(miRNA):
+        abort(400)
+
     dfs = get_miRNA_expression_pan_cancer(miRNA)
     expression = [] 
     for molecule, df in dfs:
@@ -215,6 +205,9 @@ def df_to_network(interactions):
 
 @frontend.route("/cancer/<cancer>", methods=["GET"])
 def show_cancer(cancer):
+    if not check_cancer(cancer):
+        abort(400)
+
     interactions = get_significant_interactions(cancer)
     network = df_to_network(interactions)
     targets_summary = get_isomirs_targeting_summary_in_cancer(cancer)
@@ -249,14 +242,8 @@ def html_p_value(p):
 
 @frontend.route("/cancer_molecule/<cancer>/<molecule>", methods=["GET"])
 def show_cancer_molecule(cancer, molecule):
-    '''
-    Show information about a specified miRNA:
-        - Pan-cancer expression distribution
-        - Predicted miRDB/TargetScan targets
-        - Pan-cancer anti-correlation patterns
-        - TODO: cancer-universal targets
-        - TODO: links to the neighboring miRNAs
-    '''
+    if not check_cancer(cancer) or not check_molecule(molecule):
+        abort(400)
     
     # First, get expression data
     try:
@@ -299,11 +286,8 @@ def show_cancer_molecule(cancer, molecule):
     
 @frontend.route("/cancer_isomir_target/<cancer>/<isomir>/<target>", methods=["GET"])
 def show_cancer_isomir_target(cancer, isomir, target):
-    '''
-    Show information about a specified miRNA:
-        - Target Scores
-        - Scatterplots
-    '''
+    if not check_cancer(cancer) or not check_molecule(isomir) or not check_molecule(target):
+        abort(400)
     
     # Get expression arrays
     try:
