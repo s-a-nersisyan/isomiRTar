@@ -9,15 +9,24 @@ import pandas as pd
 import numpy as np
 
 
-def get_molecule_expression_pan_cancer(molecule, add_asterisk=True):
+def get_molecule_expression_pan_cancer(molecule, units="tpm", add_asterisk=True):
     '''
         Returns json {"cancer": [...], "expression": [...]}
     '''
-    results = Expression.query.filter(Expression.molecule == molecule).all()
+    results = (
+        Expression.query
+        .filter(Expression.molecule == molecule)
+        .order_by(Expression.cancer)
+        .all()
+    )
     dfs = []
     for res in results:
         df = pd.DataFrame(columns=["cancer", "expression"])
-        df["expression"] = res.tpm
+        if units == "tpm":
+            df["expression"] = res.tpm
+        else:
+            df["expression"] = res.tmm
+
         df["cancer"] = res.cancer + ("*" if add_asterisk and res.highly_expressed else "")
         dfs.append(df)
     df = pd.concat(dfs)
@@ -41,7 +50,7 @@ def get_miRNA_expression_pan_cancer(miRNA):
     return dfs
 
 
-def get_molecule_expression_in_cancer(molecule, cancer):
+def get_molecule_expression_in_cancer(molecule, cancer, units="tpm"):
     result = (
         Expression.query
         .filter(and_(
@@ -49,7 +58,10 @@ def get_molecule_expression_in_cancer(molecule, cancer):
             Expression.cancer == cancer
         ))
     ).one()
-    return np.array(result.tpm, dtype=np.float64), result.highly_expressed
+    if units == "tpm":
+        return np.array(result.tpm, dtype=np.float64), result.highly_expressed
+    else:
+        return np.array(result.tmm, dtype=np.float64), result.highly_expressed
 
 
 def get_molecule_targeting_pan_cancer(isomiR=None, target=None, add_asterisk=True):
@@ -146,3 +158,16 @@ def get_isomirs_targeting_summary_in_cancer(cancer):
     df = pd.read_sql(query, db.engine)
 
     return df
+
+
+def get_cancer_isomir_target(cancer, isomir, target):
+    result = (
+        Targets_raw.query
+        .filter(and_(
+            Targets_raw.cancer == cancer,
+            Targets_raw.isomir == isomir,
+            Targets_raw.target == target,
+        ))
+    ).one()
+
+    return result

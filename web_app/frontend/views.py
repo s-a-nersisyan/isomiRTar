@@ -4,15 +4,10 @@ from web_app.api.db_functions import *
 
 
 from flask import render_template
-from flask import request
-from flask import Response
-from flask import jsonify
+from flask import abort
 
 import json
-#import pandas as pd
-#import pickle as pkl
-#from itertools import product
-#import os
+from scipy.stats import linregress, spearmanr
 
 
 @frontend.route("/", methods=["GET"])
@@ -216,9 +211,12 @@ def show_cancer_custom(cancer):
 
 
 def html_p_value(p):
+    if p == 0:
+        return "0"
+
     float_str = '{0:.2e}'.format(p)
     base, exponent = float_str.split('e')
-
+    
     if 2 >= int(exponent) >= -2:
         return '{:.3f}'.format(p)
 
@@ -256,32 +254,79 @@ def show_cancer_molecule(cancer, molecule):
     
     targets = targets.sort_values("spearman_corr").set_index(index_col)
     targets["significant"] = (targets["spearman_corr"] < -0.3) & (targets["spearman_p_value"] < 0.05)
-    print(targets)
     targets["spearman_p_value"] = [html_p_value(p) for p in targets["spearman_p_value"]]
     targets["mirdb_score"] = targets["mirdb_score"].astype("Int64")
     targets["isomir_median_tpm"] = (2**targets["isomir_median_tpm"] - 1).round(1)
     targets["target_median_tpm"] = (2**targets["target_median_tpm"] - 1).round(1)
     targets = targets.astype("string").fillna("-")
 
-    '''
-    # Sort miRDB/TargetScan predictions according to the scores
-    targets_seq = targets_pan_cancer.set_index(index_col)[["mirdb_score", "targetscan_score"]]
-    targets_seq = targets_seq.loc[~targets_seq.index.duplicated()]
-    targets_seq["mirdb_score"] *= -1
-    df1 = targets_seq.loc[(targets_seq["mirdb_score"].notna()) & (targets_seq["targetscan_score"].notna())]
-    df2 = targets_seq.loc[(targets_seq["mirdb_score"].notna()) & (targets_seq["targetscan_score"].isna())]
-    df3 = targets_seq.loc[(targets_seq["mirdb_score"].isna()) & (targets_seq["targetscan_score"].notna())]
-    targets_seq = pd.concat([
-        df1.sort_values(["mirdb_score", "targetscan_score"]),
-        df2.sort_values("mirdb_score"),
-        df3.sort_values("targetscan_score")
-    ])
-    targets_seq["mirdb_score"] *= -1
-    '''
-
     return render_template(
         "cancer_molecule/main.html",
         is_isomiR=is_isomiR,
         expression=expression,
         targets=targets
+    )
+
+    
+@frontend.route("/cancer_isomir_target/<cancer>/<isomir>/<target>", methods=["GET"])
+def show_cancer_isomir_target(cancer, isomir, target):
+    '''
+    Show information about a specified miRNA:
+        - Target Scores
+        - Scatterplots
+    '''
+    
+    # Get expression arrays
+    try:
+        isomir_expr, highly_expressed = get_molecule_expression_in_cancer(isomir, cancer, units="tmm")
+        target_expr, _ = get_molecule_expression_in_cancer(target, cancer, units="tmm")
+    except:
+        abort(400)
+    
+    # Get or calculate Spearman's correlation
+    try:
+        targeting = get_cancer_isomir_target(cancer, isomir, target)
+        spearman_corr = targeting.spearman_corr
+        spearman_p_value = targeting.spearman_p_value
+    except:
+        spearman_corr, spearman_p_value = spearmanr(isomir_expr, target_expr)
+    
+    spearman_corr = f"{spearman_corr:.2f}"
+    spearman_p_value = html_p_value(spearman_p_value)
+    
+    # Calculate slope for regression line
+    lr = linregress(isomir_expr, target_expr)
+    x_min, x_max = isomir_expr.min(), isomir_expr.max()
+    if x_min*lr.slope + lr.intercept < 0 and lr.slope != 0:
+        x_min = -lr.intercept/lr.slope
+    if x_max*lr.slope + lr.intercept < 0 and lr.slope != 0:
+        x_max = -lr.intercept/lr.slope
+
+    expression = [
+        {
+            "name": cancer,
+            "x": isomir_expr.tolist(),
+            "y": target_expr.tolist(),
+            "type": "scatterplot",
+            "mode": "markers"
+        },
+        {
+            "x": [x_min, x_max],
+            "y": [
+                x_min*lr.slope + lr.intercept,
+                x_max*lr.slope + lr.intercept
+            ],
+            "type": "scatterplot",
+            "mode": "lines"
+        }
+    ]
+    
+    return render_template(
+        "cancer_isomir_target/main.html",
+        cancer=cancer,
+        isomir=isomir,
+        target=target,
+        expression=expression,
+        spearman_corr=spearman_corr,
+        spearman_p_value=spearman_p_value
     )

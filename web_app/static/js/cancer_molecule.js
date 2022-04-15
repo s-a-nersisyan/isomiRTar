@@ -17,10 +17,6 @@ var layout = {
       text: `${molecule} (log<sub>2</sub> RPM)`,
     },
     zeroline: false,
-  },
-  margin: {
-    l: 0,
-    r: 0
   }
 }
 

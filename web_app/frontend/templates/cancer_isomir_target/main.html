@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  {% include 'head.html' %}
+
+  <body style="position: relative;">
+    {% include 'top_menu.html' %}
+
+    <div class="container-fluid">
+      <div class="row">
+        {% include 'molecule/sidebar.html' %}
+
+        <div class="col-10 offset-2 px-3 content">
+
+          <h2 id="expression">TCGA-{{ cancer }}</h2>
+          
+          <div>
+            <div id="expression-plot-{{ cancer }}"></div>
+          </div>
+        
+        </div>
+
+      </div>
+    </div>
+    
+    {% include 'footer.html' %}
+    <script src="{{ url_for('static', filename='lib/plotly-2.9.0-dist/js/plotly.min.js') }}"></script>
+    <script>
+      var cancer = "{{ cancer }}";
+      var isomir = "{{ isomir }}";
+      var target = "{{ target }}";
+      var spearman_corr = "{{ spearman_corr }}";
+      var spearman_p_value = "{{ spearman_p_value|safe }}";
+      var data = {{ expression|safe }};
+    </script>
+    <script src="{{ url_for('static', filename='js/cancer_isomir_target.js') }}"></script>
+
+  </body>
+</html>
