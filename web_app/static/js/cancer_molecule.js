@@ -11,7 +11,7 @@ var layout = {
   },
   xaxis: {
     title: {
-      text: `${molecule} (log<sub>2</sub> RPM)`,
+      text: `${molecule} (log<sub>2</sub> ${units})`,
     },
     zeroline: false,
   }

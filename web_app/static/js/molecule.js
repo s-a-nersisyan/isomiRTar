@@ -5,7 +5,7 @@ var layout = {
   },
   yaxis: {
     title: {
-      text: `${molecule} (RPM)`,
+      text: `${molecule} (${units})`,
       standoff: 171717
     },
     zeroline: false,

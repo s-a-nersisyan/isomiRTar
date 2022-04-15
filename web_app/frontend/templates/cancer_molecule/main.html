@@ -64,6 +64,11 @@
     <script src="{{ url_for('static', filename='lib/plotly-2.9.0-dist/js/plotly.min.js') }}"></script>
     <script>
       var molecule = "{{ molecule }}";
+      {% if is_isomiR %}
+        var units = "RPM";
+      {% else %}
+        var units = "TPM";
+      {% endif %}
       var data = {{ expression|safe }};
     </script>
     <script src="{{ url_for('static', filename='js/cancer_molecule.js') }}"></script>
