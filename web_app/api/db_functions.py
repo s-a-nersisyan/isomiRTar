@@ -2,7 +2,7 @@ from . import api
 from web_app import db
 from web_app.api.models import *
 
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, distinct
 from flask import make_response, jsonify
 
 import pandas as pd
@@ -92,6 +92,15 @@ def get_molecule_targeting_pan_cancer(isomiR=None, target=None, add_asterisk=Tru
     
     return df
 
+
+def get_isomiR_targets_unique(isomiR):
+    result  = (
+        Targets_raw.query
+        .filter(Targets_raw.isomir == isomiR)
+        .with_entities(distinct(Targets_raw.target))
+    ).all()
+
+    return [p[0] for p in result]
 
 def get_molecule_targeting_in_cancer(cancer, isomiR=None, target=None):
     if not isomiR and not target:

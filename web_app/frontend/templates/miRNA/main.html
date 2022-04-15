@@ -17,13 +17,37 @@
             <p class="">*Inlcuded in the list of 5'-isomiRs contributing to 95% of total reads in the corresponding cancer</p>
           </div>
 
-          <h2 id="targets">Targets</h2>
-          1. miRDB and TargetScan predictions, intersection (with download button or table)
-          2. Anti-correlated target genes in each cancer + links to cancer/isomiR
-          3. Cancer-universal targets
           <h2 id="targets">Neighboring 5'-isomiRs</h2>
           1. List + something about expression (e.g., where it is highly expressed)
           2. Common targets
+         
+          {% set width = 100 / (isomiRs|length + 1) %}
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th class="align-top"></th>
+                {% for isomiR in isomiRs %}
+                  <th class="align-top">{{ isomiR.split("|")[1] }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in range(isomiRs|length) %}
+                <tr>
+                  <td style="width: {{ width }}%;"><b>{{ isomiRs[i].split("|")[1] }}</b></td>
+                  {% for j in range(isomiRs|length) %}
+                    {% if i < j %}
+                      <td style="width: {{ width }}%;"></td>
+                    {% else %}
+                      <td style="width: {{ width }}%;">
+                        {{ "{:.2f}".format(jaccard[i][j]) }} ({{ intersection[i][j] }} / {{ union[i][j] }})
+                      </td>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
 
         </div>
 

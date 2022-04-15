@@ -121,10 +121,33 @@ def show_miRNA(miRNA):
             "num_cancers": len(order)
         }
 
+    # Get predicted targets for each isomiR and make pairwise intersections matrix
+    isomiRs = [isomiR for isomiR, _ in dfs]
+    targets = {}
+    for isomiR in isomiRs:
+        targets[isomiR] = set(get_isomiR_targets_unique(isomiR))
+    
+    intersection, union, jaccard = [], [], []
+    for i, isomiR1 in enumerate(isomiRs):
+        intersection.append([])
+        union.append([])
+        jaccard.append([])
+        for j, isomiR2 in enumerate(isomiRs):
+            intersection_ = len(targets[isomiR1] & targets[isomiR2])
+            union_ = len(targets[isomiR1] | targets[isomiR2])
+            jaccard_ = intersection_ / union_
+            intersection[i].append(intersection_)
+            union[i].append(union_)
+            jaccard[i].append(jaccard_)
+
     return render_template(
         "miRNA/main.html",
         miRNA=miRNA,
-        expression=expression
+        expression=expression,
+        isomiRs=isomiRs,
+        intersection=intersection,
+        union=union,
+        jaccard=jaccard
     )
 
 
@@ -236,7 +259,11 @@ def show_cancer_molecule(cancer, molecule):
     '''
     
     # First, get expression data
-    expression, highly_expressed = get_molecule_expression_in_cancer(molecule, cancer)
+    try:
+        expression, highly_expressed = get_molecule_expression_in_cancer(molecule, cancer)
+    except:
+        abort(400)
+
     expression = [{
         "name": molecule,
         "x": expression.tolist(),
