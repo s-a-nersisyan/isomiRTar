@@ -123,6 +123,7 @@ def show_miRNA(miRNA):
 
     return render_template(
         "miRNA/main.html",
+        miRNA=miRNA,
         expression=expression
     )
 
@@ -262,6 +263,7 @@ def show_cancer_molecule(cancer, molecule):
 
     return render_template(
         "cancer_molecule/main.html",
+        molecule=molecule,
         is_isomiR=is_isomiR,
         expression=expression,
         targets=targets

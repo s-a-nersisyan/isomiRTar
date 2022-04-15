@@ -1,13 +1,10 @@
-molecule = window.location.href.split("/").pop();
-molecule = molecule.split("#")[0];
-
 var layout = {
   title: "",
   height: data.length * data[0]["num_cancers"] * 30,
   xaxis: {
     side: "top",
     title: {
-      text: `${molecule} (RPM)`,
+      text: `${miRNA} (RPM)`,
       standoff: 0
     },
     zeroline: false,

@@ -1,6 +1,3 @@
-molecule = window.location.href.split("/").pop();
-molecule = molecule.split("#")[0];
-
 var layout = {
   title: "",
   xaxis: {

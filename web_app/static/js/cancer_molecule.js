@@ -1,6 +1,3 @@
-molecule = window.location.href.split("/").pop();
-molecule = molecule.split("#")[0];
-
 data[0]["box"] = {visible: false}
 data[0]["side"] = "positive"
 data[0]["meanline"] = {visible: true}
