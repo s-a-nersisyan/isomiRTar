@@ -11,16 +11,37 @@
 
         <div class="col-10 offset-2 px-3 content">
 
-          <h2 id="expression">TCGA expression profiles</h2>
+          <h2 id="expression">The distribution of {{ molecule }} expression in TCGA-{{ cancer }}</h2>
           <div>
             <div id="expression-plot"></div>
           </div>
           
-          <h2 id="targets">Targets correlation analysis</h2>
-          Sequence-based target prediction (miRDB and TargetScan).
-          Write about miRDB >= 80 and TS harmonization. Disclaimer about expression of targets (for isomiR mode).
+          <h2 id="targets">Sequence-based predicted {{ "targets" if is_isomiR else "5'-isomiR regulators"}} and correlation analysis</h2>
+          <p>
+            {% if is_isomiR %}
+              Target genes of {{ molecule }} are predicted with the use of miRDB and TargetScan.
+            {% else %}
+              IsomiR regulators of {{ molecule }} are predicted with the use of miRDB and TargetScan.
+            {% endif %}
+            Only miRDB predictions with Target Score &geq; 80 are shown.
+            The number of TargetScan predictions is harmonized with miRDB
+            by selecting the same amount of targets with the lowest
+            cumulative weighted context++ scores. We assume that 5'-isomiR
+            downregulates target gene on mRNA level in TCGA-{{ cancer }}
+            if their expression levels
+            are significantly anti-correlated (Spearman's correlation &lt; -0.3, <i>p</i> &lt; 0.05).
+          </p>
           {% set target_dfs = [targets.loc[targets["highly_expressed"] == 'True'], targets.loc[targets["highly_expressed"] == 'False']] if not is_isomiR else [targets]  %}
           {% for targets in target_dfs %}
+            {% if not is_isomiR and loop.index0 == 0 %}
+              <p>
+                The highly expressed 5'-isomiRs, i.e.,
+                included in the list of 5'-isomiRs contributing to 95% of total
+                TCGA-{{ cancer }} miRNA sequencing reads:
+              </p>
+            {% elif not is_isomiR and loop.index0 == 1 %}
+              <p>The rest of 5'-isomiRs:</p>
+            {% endif %}
             <table class="table table-bordered table-striped">
               <thead>
                 <tr>

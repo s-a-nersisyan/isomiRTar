@@ -60,7 +60,7 @@ def show_molecule(molecule):
     targets_pan_cancer = targets_pan_cancer.loc[targets_pan_cancer["spearman_corr"] < -0.3]
     for target, df in targets_pan_cancer.groupby(index_col):
         cancers = df["cancer"].to_list()
-        if len(cancers) > 1:
+        if len(cancers) >= 1:
             if is_isomiR:
                 targets_conserved.append((molecule, target, sorted(cancers)))
             else:
@@ -216,6 +216,7 @@ def show_cancer(cancer):
 
     return render_template(
         "cancer/main.html",
+        cancer=cancer,
         interactions=interactions,
         network=network,
         targets_summary=targets_summary
@@ -277,6 +278,7 @@ def show_cancer_molecule(cancer, molecule):
 
     return render_template(
         "cancer_molecule/main.html",
+        cancer=cancer,
         molecule=molecule,
         is_isomiR=is_isomiR,
         expression=expression,

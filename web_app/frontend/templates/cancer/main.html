@@ -12,23 +12,57 @@
 
         <div class="col-10 offset-2 px-3 content">
 
-          <h2 id="expression">TCGA expression profiles</h2>
+          <h2 id="expression">TCGA-{{ cancer }} 5'-isomiR-gene interaction network</h2>
+          <p>
+            Nodes of the network are highly expressed 5'-isomiRs
+            (included in the list of 5'-isomiRs contributing to 95% of total
+            TCGA-{{ cancer }} miRNA sequencing reads) and their target genes.
+            Edges represent regulatory interactions which are both 
+            sequence-based predicted (either by miRDB or TargetScan) and
+            supported by a significant negative correlation of 
+            5'-isomiR and gene expression levels (Spearman's correlation &lt; -0.3, <i>p</i> &lt; 0.05).
+            <mark style="background-color: #c7f464;">Green</mark> nodes and edges stand for canonical miRNAs, 
+            <mark style="background-color: #ff6b6b;">red</mark> nodes and edges stand for non-canonical 5'-isomiRs and
+            <mark style="background-color: #95d4f3;">blue</mark> nodes stand for target genes.
+          </p>
           <div class="network-container">
             <div id="network"></div>
             <div id="loader" style="position: absolute; left: 50%; top: 50%; text-align: center;">
               Loading the network<br>0%
             </div>
           </div>
+          <br>
 
-          <h2>Highly expressed isomiRs</h2>
+          <h2>TCGA-{{ cancer }} 5'-isomiRs overview</h2>
+          <p>
+            IsomiR target genes are predicted with the use of miRDB and TargetScan.
+            Only miRDB predictions with Target Score &geq; 80 are counted.
+            The number of TargetScan predictions is harmonized with miRDB
+            by selecting the same amount of targets with the lowest
+            cumulative weighted context++ scores. Predicted targets with
+            non-detectable expression in TCGA-{{ cancer }} are not considered.
+            We assume that 5'-isomiR
+            downregulates target gene on mRNA level in TCGA-{{ cancer }}
+            if their expression levels
+            are significantly anti-correlated (Spearman's correlation &lt; -0.3, <i>p</i> &lt; 0.05).
+
+          </p>
           {% for he in [True, False] %}
-            Highly expressed isomiRs: {{ he }}
+            {% if he %}
+              <p>
+                The highly expressed 5'-isomiRs, i.e.,
+                included in the list of 5'-isomiRs contributing to 95% of total
+                TCGA-{{ cancer }} miRNA sequencing reads:
+              </p>
+            {% else %}
+              <p>The rest of 5'-isomiRs:</p>
+            {% endif %}
             <table class="table table-bordered table-striped">
               <thead>
                 <tr>
                   <th class="align-top">5'-isomiR</th>
                   <th class="align-top">Median expression (RPM)</th>
-                  <th class="align-top">Number of targets predicted by miRDB or TargetScan*</th>
+                  <th class="align-top">Number of targets predicted by miRDB or TargetScan</th>
                   <th class="align-top">Number of significantly anti-correlated targets</th>
                 </tr>
               </thead>

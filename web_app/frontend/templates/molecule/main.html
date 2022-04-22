@@ -11,15 +11,32 @@
 
         <div class="col-10 offset-2 px-3 content">
 
-          <h2 id="expression">TCGA expression profiles</h2>
+          <h2 id="expression">The distribution of {{ molecule }} expression across TCGA cancers</h2>
           <div>
             <div id="expression-plot"></div>
-            <p class="">*Inlcuded in the list of 5'-isomiRs contributing to 95% of total reads in the corresponding cancer</p>
           </div>
+          {% if is_isomiR %}
+            <p>
+              *{{ molecule }} is highly expressed in the corresponding cancer, i.e.,
+              is included in the list of 5'-isomiRs contributing to 95% of total
+              miRNA sequencing reads.
+            </p>
+          {% endif %}
 
-          <h2 id="sequence-based-targets">Sequence-based predicted targets</h2>
-          Sequence-based target prediction (miRDB and TargetScan).
-          Write about miRDB >= 80 and TS harmonization. Disclaimer about non-cancer specificity.
+          <h2 id="sequence-based-targets">Sequence-based predicted {{ "targets" if is_isomiR else "5'-isomiR regulators"}}</h2>
+          <p>
+            {% if is_isomiR %}
+              Target genes of {{ molecule }} are predicted with the use of miRDB and TargetScan.
+            {% else %}
+              IsomiR regulators of {{ molecule }} are predicted with the use of miRDB and TargetScan.
+            {% endif %}
+            Only miRDB predictions with Target Score &geq; 80 are shown.
+            The number of TargetScan predictions is harmonized with miRDB
+            by selecting the same amount of targets with the lowest
+            cumulative weighted context++ scores.
+            Note that these predictions are based solely on isomiR and target gene sequences 
+            (i.e., they are not cell/tissue specific).
+          </p>
           <table class="table table-bordered table-striped">
             <thead>
               <tr>
@@ -43,18 +60,46 @@
             </tbody>
           </table>
 
-          <h2 id="targets">Pan-cancer conserved targets</h2>
-          Table with target and number of cancers (n >= 10).
-          Heatmap with correlations with them. Disclaimer about < -0.3 corr.
-          <ul>
-            {% for source, target, cancers in targets_conserved %}
-              <li>{{ source }} &#x2192; {{ target }} in {{ cancers|length}} cancers: {{ ", ".join(cancers) }}</li>
-            {% endfor %}
-          </ul>
+          <h2 id="targets">Pan-cancer conserved {{ "targets" if is_isomiR else "5'-isomiR regulators"}}</h2>
+          <p>
+            To select
+            {% if is_isomiR %}
+              {{ molecule }} &#x2192; target
+            {% else %}
+              5'-isomiR &#x2192; {{ molecule }}
+            {% endif %}
+            interactions supported by expression data
+            we calculate the number of TCGA projects
+            where expression levels of 5'-isomiR and target gene
+            are significantly anti-correlated (Spearman's correlation &lt; -0.3, <i>p</i> &lt; 0.05).
+          </p>
 
-          <h2 id="targets">Neighboring 5'-isomiRs</h2>
-          1. List + something about expression (e.g., where it is highly expressed)
-          2. Common targets
+          <ul>
+          </ul>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th class="align-top">Interaction</th>
+                <th class="align-top">Number of cancers with significant anti-correlation</th>
+                <th class="align-top">Cancers with significant anti-correlation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for source, target, cancers in targets_conserved %}
+                <tr>
+                  <td style="width: 33.3%;">{{ source }} &#x2192; {{ target }}</td>
+                  <td style="width: 33.3%;">{{ cancers|length}}</td>
+                  <td style="width: 33.3%;">{{ ", ".join(cancers) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <p>
+            *5'-isomiR is highly expressed in the corresponding cancer, i.e.,
+            is included in the list of 5'-isomiRs contributing to 95% of total
+            miRNA sequencing reads.
+          </p>
 
         </div>
 

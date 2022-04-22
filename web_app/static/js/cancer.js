@@ -37,7 +37,11 @@ var options = {
       updateInterval: 10
     }
   },
-  interaction: { multiselect: true}
+  interaction: {
+    multiselect: true,
+    tooltipDelay: 0,
+    navigationButtons: true
+  }
 };
 
 // initialize your network!
