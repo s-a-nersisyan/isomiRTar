@@ -85,11 +85,15 @@
               </tr>
             </thead>
             <tbody>
-              {% for source, target, cancers in targets_conserved %}
+              {% for source, target, anti_corr_cancers in targets_conserved %}
                 <tr>
                   <td style="width: 33.3%;">{{ source }} &#x2192; {{ target }}</td>
-                  <td style="width: 33.3%;">{{ cancers|length}}</td>
-                  <td style="width: 33.3%;">{{ ", ".join(cancers) }}</td>
+                  <td style="width: 33.3%;">{{ anti_corr_cancers|length}}</td>
+                  <td style="width: 33.3%;">
+                    {% for cancer in anti_corr_cancers %}
+                      <a href="/cancer_isomir_target/{{ cancer.rstrip('*') }}/{{ source }}/{{ target }}">{{ cancer }}</a>{% if loop.index != anti_corr_cancers|length %}, {% endif %}
+                    {% endfor %}
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -100,6 +104,17 @@
             is included in the list of 5'-isomiRs contributing to 95% of total
             miRNA sequencing reads.
           </p>
+          
+          <h2 id="targets">See also</h2>
+          <p>
+            The detailed information on cancer-specific {{ molecule }} expression and {{ "targeting" if is_isomiR else "regulation by 5'-isomiRs"}}:
+          </p>
+          <ul>
+              {% for cancer in cancers %} 
+                <li><a href="/cancer_molecule/{{ cancer.rstrip('*') }}/{{ molecule }}">TCGA-{{ cancer }}</a></li>
+              {% endfor %}
+          </ul>
+
 
         </div>
 

@@ -64,7 +64,11 @@
               <tbody>
                 {% for target, row in targets.iterrows()%}
                   <tr style="font-weight: {{ 'bold' if row['significant'] == 'True' else 'normal' }};">
-                    <td >{{ target }}</td>
+                    {% if is_isomiR %}
+                      <td><a href="/cancer_isomir_target/{{ cancer }}/{{ molecule }}/{{ target }}">{{ target }}</a></td>
+                    {% else %}
+                      <td><a href="/cancer_isomir_target/{{ cancer }}/{{ target }}/{{ molecule }}">{{ target }}</a></td>
+                    {% endif %}
                     <td >{{ row['spearman_corr'] }}</td>
                     <td >{{ row['spearman_p_value']|safe }}</td>
                     <td >{{ row['target_median_tpm'] if is_isomiR else row['isomir_median_tpm'] }}</td>

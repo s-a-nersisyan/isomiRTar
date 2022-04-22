@@ -67,9 +67,11 @@
                 </tr>
               </thead>
               <tbody>
-                {% for _, row in targets_summary.loc[targets_summary['highly_expressed'] == he].iterrows() %}
+                {% for _, row in targets_summary.loc[targets_summary['highly_expressed'] == he].iterrows() if row['num_targets_expressed'] != 0 %}
                 <tr>
-                    <td style="width: 25%;">{{ row['isomir'] }}</td>
+                    <td style="width: 25%;">
+                      <a href="/cancer_molecule/{{ cancer }}/{{ row['isomir'] }}">{{ row['isomir'] }}</a>
+                    </td>
                     <td style="width: 25%;">{{ row['isomir_median_tpm'] }}</td>
                     <td style="width: 25%;">{{ row['num_targets_expressed'] }}</td>
                     <td style="width: 25%;">{{ row['num_targets_anticorrelated'] }}</td>

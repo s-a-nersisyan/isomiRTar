@@ -57,6 +57,16 @@
               {% endfor %}
             </tbody>
           </table>
+          
+          <h2 id="targets">See also</h2>
+          <p>
+            The detailed information on pan-cancer 5'-isomiR expression and targeting:
+          </p>
+          <ul>
+              {% for isomiR in isomiRs %}
+                <li><a href="/molecule/{{ isomiR }}">{{ isomiR }}</a></li>
+              {% endfor %}
+          </ul>
 
         </div>
 

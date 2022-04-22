@@ -25,6 +25,7 @@ def show_molecule(molecule):
     order = df.groupby("cancer").quantile(0.75).sort_values("expression", ascending=False).index
     df = pd.concat([df.loc[df["cancer"] == cancer] for cancer in order])
     df["expression"] = 2**df["expression"] - 1
+    cancers = df["cancer"].unique()
     
     expression = df.rename(columns={"cancer": "x", "expression": "y"}).to_dict(orient="list")
     expression["type"] = "box"
@@ -59,12 +60,12 @@ def show_molecule(molecule):
     targets_conserved = []
     targets_pan_cancer = targets_pan_cancer.loc[targets_pan_cancer["spearman_corr"] < -0.3]
     for target, df in targets_pan_cancer.groupby(index_col):
-        cancers = df["cancer"].to_list()
-        if len(cancers) >= 1:
+        anti_corr_cancers = df["cancer"].to_list()
+        if len(anti_corr_cancers) >= 1:
             if is_isomiR:
-                targets_conserved.append((molecule, target, sorted(cancers)))
+                targets_conserved.append((molecule, target, sorted(anti_corr_cancers)))
             else:
-                targets_conserved.append((target, molecule, sorted(cancers)))
+                targets_conserved.append((target, molecule, sorted(anti_corr_cancers)))
 
     targets_conserved = sorted(targets_conserved, key=lambda x: len(x[2]), reverse=True)
 
@@ -72,6 +73,7 @@ def show_molecule(molecule):
         "molecule/main.html",
         molecule=molecule,
         expression=expression,
+        cancers=cancers,
         is_isomiR=is_isomiR,
         targets_seq=targets_seq,
         targets_conserved=targets_conserved
