@@ -49,8 +49,12 @@
   z-index: 2000;
 }
 
-.content {
-  margin-top: 56px;
+.main-content h2, h4 {
+  padding-top: 56px;
+}
+
+.menu-padding {
+  padding-top: 56px;
 }
 
 /* vis.js */

@@ -4,15 +4,28 @@
 
       <ul class="nav nav-pills flex-column mt-4" id="navbar-protein">
         <li class="nav-item">
-          <a class="nav-link" href="#Summary">
+          <a class="nav-link" href="#expression">
             Expression
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#Summary">
-            Targets
-          </a>
-        </li>
+        {% if is_isomiR %}
+          <li class="nav-item">
+            <a class="nav-link" href="#targeting-correlations">
+              Targets
+            </a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="#targeting-correlations">
+              Highly expressed regulators
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#non-he-targeting-correlations">
+              Non-highly expressed regulators
+            </a>
+          </li>
+        {% endif %}
       </ul>
 
   </div>

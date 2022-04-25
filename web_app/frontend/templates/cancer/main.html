@@ -8,9 +8,9 @@
 
     <div class="container-fluid">
       <div class="row">
-        {% include 'molecule/sidebar.html' %}
+        {% include 'cancer/sidebar.html' %}
 
-        <div class="col-10 offset-2 px-3 content">
+        <div class="col-10 offset-2 px-3 content main-content">
 
           <h2 id="expression">TCGA-{{ cancer }} 5'-isomiR-gene interaction network</h2>
           <p>
@@ -33,7 +33,7 @@
           </div>
           <br>
 
-          <h2>TCGA-{{ cancer }} 5'-isomiRs overview</h2>
+          <h2 id="he-isomirs">TCGA-{{ cancer }} 5'-isomiRs overview</h2>
           <p>
             IsomiR target genes are predicted with the use of miRDB and TargetScan.
             Only miRDB predictions with Target Score &geq; 80 are counted.
@@ -49,13 +49,13 @@
           </p>
           {% for he in [True, False] %}
             {% if he %}
+              <h4 style="padding-top: 0;">Highly expressed 5'-isomiRs</h4>
               <p>
-                The highly expressed 5'-isomiRs, i.e.,
-                included in the list of 5'-isomiRs contributing to 95% of total
-                TCGA-{{ cancer }} miRNA sequencing reads:
+                I.e., included in the list of 5'-isomiRs contributing to 95% of total
+                TCGA-{{ cancer }} miRNA sequencing reads.
               </p>
             {% else %}
-              <p>The rest of 5'-isomiRs:</p>
+              <h4 id="non-he-isomirs">Non-highly expressed 5'-isomiRs</h4>
             {% endif %}
             <table class="table table-bordered table-striped">
               <thead>
@@ -94,6 +94,8 @@
       var edges = {{network["edges"]|safe}};
     </script>
     <script src="{{ url_for('static', filename='js/cancer.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/jquery-3.6.0-dist/js/jquery-3.6.0.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/navbar_left.js') }}"></script>
 
   </body>
 </html>

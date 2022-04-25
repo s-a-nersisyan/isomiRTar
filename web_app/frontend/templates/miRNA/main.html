@@ -9,14 +9,14 @@
       <div class="row">
         {% include 'miRNA/sidebar.html' %}
 
-        <div class="col-10 offset-2 px-3 content">
+        <div class="col-10 offset-2 px-3 content main-content">
 
-          <h2 id="expression">The distribution of {{ miRNA }} isomirs expression across TCGA cancers</h2>
+          <h2 id="expression">The distribution of {{ miRNA }} isomiRs expression across TCGA cancers</h2>
           <div>
             <div id="expression-plot"></div>
           </div>
 
-          <h2 id="targets">{{ miRNA }} isomir targets summary</h2>
+          <h2 id="targeting">{{ miRNA }} isomiR targets summary</h2>
           <p>
             IsomiR target genes are predicted with the use of miRDB and TargetScan.
             Only miRDB predictions with Target Score &geq; 80 are counted.
@@ -58,7 +58,7 @@
             </tbody>
           </table>
           
-          <h2 id="targets">See also</h2>
+          <h2 id="see-also">See also</h2>
           <p>
             The detailed information on pan-cancer 5'-isomiR expression and targeting:
           </p>
@@ -80,6 +80,8 @@
       var data = {{ expression|safe }};
     </script>
     <script src="{{ url_for('static', filename='js/miRNA.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/jquery-3.6.0-dist/js/jquery-3.6.0.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/navbar_left.js') }}"></script>
 
   </body>
 </html>
