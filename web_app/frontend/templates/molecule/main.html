@@ -15,7 +15,7 @@
           <div>
             <div id="expression-plot"></div>
           </div>
-          {% if is_isomiR %}
+          {% if is_isomiR and at_least_one_highly_expressed %}
             <p>
               *{{ molecule }} is highly expressed in the corresponding cancer, i.e.,
               is included in the list of 5'-isomiRs contributing to 95% of total
@@ -99,11 +99,13 @@
             </tbody>
           </table>
 
-          <p>
-            *5'-isomiR is highly expressed in the corresponding cancer, i.e.,
-            is included in the list of 5'-isomiRs contributing to 95% of total
-            miRNA sequencing reads.
-          </p>
+          {% if not is_isomiR or (is_isomiR and at_least_one_highly_expressed) %}
+            <p>
+              *5'-isomiR is highly expressed in the corresponding cancer, i.e.,
+              is included in the list of 5'-isomiRs contributing to 95% of total
+              miRNA sequencing reads.
+            </p>
+          {% endif %}
           
           <h2 id="targets">See also</h2>
           <p>
@@ -114,7 +116,13 @@
                 <li><a href="/cancer_molecule/{{ cancer.rstrip('*') }}/{{ molecule }}">TCGA-{{ cancer }}</a></li>
               {% endfor %}
           </ul>
-
+          {% if is_isomiR and at_least_one_highly_expressed %}
+            <p>
+              *{{ molecule }} is highly expressed in the corresponding cancer, i.e.,
+              is included in the list of 5'-isomiRs contributing to 95% of total
+              miRNA sequencing reads.
+            </p>
+          {% endif %}
 
         </div>
 

@@ -26,6 +26,7 @@ def show_molecule(molecule):
     df = pd.concat([df.loc[df["cancer"] == cancer] for cancer in order])
     df["expression"] = 2**df["expression"] - 1
     cancers = df["cancer"].unique()
+    at_least_one_highly_expressed = "*" in [cancer[-1] for cancer in cancers]
     
     expression = df.rename(columns={"cancer": "x", "expression": "y"}).to_dict(orient="list")
     expression["type"] = "box"
@@ -74,6 +75,7 @@ def show_molecule(molecule):
         molecule=molecule,
         expression=expression,
         cancers=cancers,
+        at_least_one_highly_expressed=at_least_one_highly_expressed,
         is_isomiR=is_isomiR,
         targets_seq=targets_seq,
         targets_conserved=targets_conserved
