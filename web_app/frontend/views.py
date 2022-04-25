@@ -72,6 +72,7 @@ def show_molecule(molecule):
 
     return render_template(
         "molecule/main.html",
+        page="molecule",
         molecule=molecule,
         expression=expression,
         cancers=cancers,
@@ -136,6 +137,7 @@ def show_miRNA(miRNA):
 
     return render_template(
         "miRNA/main.html",
+        page="miRNA",
         miRNA=miRNA,
         expression=expression,
         isomiRs=isomiRs,
@@ -220,6 +222,7 @@ def show_cancer(cancer):
 
     return render_template(
         "cancer/main.html",
+        page="cancer",
         cancer=cancer,
         interactions=interactions,
         network=network,
@@ -282,6 +285,7 @@ def show_cancer_molecule(cancer, molecule):
 
     return render_template(
         "cancer_molecule/main.html",
+        page="cancer_molecule",
         cancer=cancer,
         molecule=molecule,
         is_isomiR=is_isomiR,
@@ -342,6 +346,7 @@ def show_cancer_isomir_target(cancer, isomir, target):
     
     return render_template(
         "cancer_isomir_target/main.html",
+        page="cancer_isomir_target",
         cancer=cancer,
         isomir=isomir,
         target=target,

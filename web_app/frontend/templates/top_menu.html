@@ -1,23 +1,36 @@
 <nav class="topmenu navbar fixed-top navbar-light bg-white d-flex justify-content-between px-2">
   <a class="navbar-brand" style="flex-grow: 1; flex-basis: 0;" href="/">isomiRTar</a>
   
-  <span class="">{{ lineage }}</span>
-  
-  <!--
-  <div class="d-flex justify-content-end" style="flex-grow: 1; flex-basis: 0;">
-    <ul class="pagination pagination-sm my-0">
-      {% if hla_class == "HLA-I" %}
-        <li class="page-item active" aria-current="page">
-          <span class="page-link">CD8 epitopes (HLA&#8209;I)</span>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="/">isomiRTar</a></li>
+      {% if page == "miRNA" %}
+        <li class="breadcrumb-item active" aria-current="page">{{ miRNA }}</li>
+      {% elif page == "molecule" %}
+        {% if is_isomiR %}
+          <li class="breadcrumb-item">
+            <a href="/miRNA/{{ molecule.split("|")[0] }}">{{ molecule.split("|")[0] }}</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ molecule }}</li>
+        {% else %}
+          <li class="breadcrumb-item active" aria-current="page">{{ molecule }}</li>
+        {% endif %}
+      {% elif page == "cancer" %}
+        <li class="breadcrumb-item active" aria-current="page">TCGA-{{ cancer }}</li>
+      {% elif page == "cancer_molecule" %}
+        <li class="breadcrumb-item">
+          <a href="/cancer/{{ cancer }}">TCGA-{{ cancer }}</a>
         </li>
-        <li class="page-item"><a class="page-link" href="/stats/{{ gisaid_id }}?hla_class=HLA-II">CD4 epitopes (HLA&#8209;II)</a></li>
-      {% else %}
-        <li class="page-item"><a class="page-link" href="/stats/{{ gisaid_id }}?hla_class=HLA-I">CD8 epitopes (HLA&#8209;I)</a></li>
-        <li class="page-item active" aria-current="page">
-          <span class="page-link">CD4 epitopes (HLA&#8209;II)</span>
+        <li class="breadcrumb-item active" aria-current="page">{{ molecule }}</li>
+      {% elif page == "cancer_isomir_target" %}
+        <li class="breadcrumb-item">
+          <a href="/cancer/{{ cancer }}">TCGA-{{ cancer }}</a>
         </li>
+        <li class="breadcrumb-item">
+          <a href="/cancer_molecule/{{ cancer }}/{{ isomir }}">{{ isomir }}</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">{{ target }}</li>
       {% endif %}
-    </ul>
-  </div>
-  -->
+    </ol>
+  </nav>
 </nav>
