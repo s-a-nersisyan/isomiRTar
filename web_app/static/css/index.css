@@ -1,0 +1,19 @@
+.search-container {
+  position: relative;
+}
+
+.search-container .tab-content {
+  width: 300px;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+select {
+  display: none;
+}
+
+.spinner-border {
+  display: block;
+  margin: 0 auto;
+}

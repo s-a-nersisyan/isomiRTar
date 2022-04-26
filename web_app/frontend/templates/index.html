@@ -1,20 +1,272 @@
 <!doctype html>
 <html lang="en">
   {% include 'head.html' %}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='lib/gh-fork-ribbon-0.2.3-dist/css/gh-fork-ribbon.min.css') }}">
-  
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='lib/bootstrap-select-1.14.0-beta3-dist/css/bootstrap-select.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='lib/bootstrap-icons-1.8.1-dist/bootstrap-icons.css') }}">
+
   <body>
     
     <div class="container">
       <h1 class="display-4 text-center mt-4">isomiRTar</h1>
       <div class="lead text-center">
-        TODO
+        Explore 5'-isomiR targeting in cancer
       </div>
+      
+      <hr class="my-5">
+      
+      <div class="d-flex align-items-start search-container">
+
+        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+          <p class="text-start ps-3">Search by</p>
+          <button class="nav-link active text-start" id="v-pills-cancer-tab" data-bs-toggle="pill" data-bs-target="#v-pills-cancer" type="button" role="tab" aria-controls="v-pills-cancer" aria-selected="true">Cancer</button>
+          <button class="nav-link text-start" id="v-pills-miRNA-tab" data-bs-toggle="pill" data-bs-target="#v-pills-miRNA" type="button" role="tab" aria-controls="v-pills-miRNA" aria-selected="false">miRNA</button>
+          <button class="nav-link text-start" id="v-pills-isomiR-tab" data-bs-toggle="pill" data-bs-target="#v-pills-isomiR" type="button" role="tab" aria-controls="v-pills-isomiR" aria-selected="false">isomiR</button>
+          <button class="nav-link text-start" id="v-pills-gene-tab" data-bs-toggle="pill" data-bs-target="#v-pills-gene" type="button" role="tab" aria-controls="v-pills-gene" aria-selected="false">Gene</button>
+          <button class="nav-link text-start" id="v-pills-triple-tab" data-bs-toggle="pill" data-bs-target="#v-pills-triple" type="button" role="tab" aria-controls="v-pills-triple" aria-selected="false">isomiR and gene</button>
+        </div>
+
+        <div class="tab-content" id="v-pills-tabContent">
+          
+          <!-- *********** Search by cancer *********** -->
+          <div class="tab-pane fade show active" id="v-pills-cancer" role="tabpanel" aria-labelledby="v-pills-cancer-tab">
+            <div class="mx-auto cancer-search">
+              <p>
+                Search by a cancer type and
+                find data on its 5'-isomiR-gene
+                interactions
+              </p>
+              <div class="mb-2">
+                <div class="spinner-border text-primary cancers-spinner" role="status"></div>
+                <select
+                  class="show-tick cancers-select"
+                  title="Cancer"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-width="100%"
+                  data-dropup-auto="false"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                ></select>
+              </div>
+              <div>
+                <button type="button" class="btn btn-primary w-100">
+                  Browse&nbsp;<i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- *********** Search by miRNA *********** -->
+          <div class="tab-pane fade" id="v-pills-miRNA" role="tabpanel" aria-labelledby="v-pills-miRNA-tab">
+            <div class="mx-auto miRNA-search">
+              <p>
+                Search by a miRNA and
+                find data on its 5'-isomiRs
+              </p>
+              <div class="mb-2">
+                <div class="spinner-border text-primary miRNAs-spinner" role="status"></div>
+                <select
+                  class="show-tick miRNAs-select"
+                  title="miRNA"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-width="100%"
+                  data-dropup-auto="false"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                ></select>
+              </div>
+              <div>
+                <button type="button" class="btn btn-primary w-100">
+                  Browse&nbsp;<i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- *********** Search by isomiR *********** -->
+          <div class="tab-pane fade" id="v-pills-isomiR" role="tabpanel" aria-labelledby="v-pills-isomiR-tab">
+            <div class="mx-auto isomiR-search">
+              <p>
+                Search by a 5'-isomiR and
+                find pan-cancer/cancer-specific data on its
+                expression and targeting
+              </p>
+              <div class="mb-2">
+                <div class="spinner-border text-primary isomiRs-spinner" role="status"></div>
+                <select
+                  class="show-tick isomiRs-select"
+                  title="isomiR"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-width="100%"
+                  data-dropup-auto="false"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                ></select>
+              </div>
+              <div class="mb-2">
+                <div class="spinner-border text-primary cancers-spinner" role="status"></div>
+                <select
+                  class="show-tick cancers-select"
+                  title="Cancer"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-width="100%"
+                  data-dropup-auto="false"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                >
+                  <option value="pan-cancer">Pan-cancer</option>
+                </select>
+              </div>
+              <div>
+                <button type="button" class="btn btn-primary w-100">
+                  Browse&nbsp;<i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- *********** Search by gene *********** -->
+          <div class="tab-pane fade" id="v-pills-gene" role="tabpanel" aria-labelledby="v-pills-gene-tab">
+            <div class="mx-auto gene-search">
+              <p>
+                Search by a gene and
+                find pan-cancer/cancer-specific data on its
+                expression and regulation by 5'-isomiRs
+              </p>
+              <div class="mb-2">
+                <div class="spinner-border text-primary genes-spinner" role="status"></div>
+                <select
+                  class="show-tick genes-select"
+                  title="Gene"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-width="100%"
+                  data-dropup-auto="false"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                ></select>
+              </div>
+              <div class="mb-2">
+                <div class="spinner-border text-primary cancers-spinner" role="status"></div>
+                <select
+                  class="show-tick cancers-select"
+                  title="Cancer"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-width="100%"
+                  data-dropup-auto="false"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                >
+                  <option value="pan-cancer">Pan-cancer</option>
+                </select>
+              </div>
+              <div>
+                <button type="button" class="btn btn-primary w-100">
+                  Browse&nbsp;<i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- *********** Search by triple *********** -->
+          <div class="tab-pane fade" id="v-pills-triple" role="tabpanel" aria-labelledby="v-pills-triple-tab">
+            <div class="mx-auto triple-search">
+              <p>
+                Search by a 5'-isomiR, gene, cancer and
+                find the the results of correlation analysis
+              </p>
+              <div class="mb-2">
+                <div class="spinner-border text-primary isomiRs-spinner" role="status"></div>
+                <select
+                  class="show-tick isomiRs-select"
+                  title="isomiR"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-width="100%"
+                  data-dropup-auto="false"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                ></select>
+              </div>
+              <div class="mb-2">
+                <div class="spinner-border text-primary genes-spinner" role="status"></div>
+                <select
+                  class="show-tick genes-select"
+                  title="Gene"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-width="100%"
+                  data-dropup-auto="false"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                ></select>
+              </div>
+              <div class="mb-2">
+                <div class="spinner-border text-primary cancers-spinner" role="status"></div>
+                <select
+                  class="show-tick cancers-select"
+                  title="Cancer"
+                  data-style-base="form-control"
+                  data-style=""
+                  data-dropup-auto="false"
+                  data-width="100%"
+                  data-live-search="true"
+                  data-dropdown-align-right="true"
+                  data-window-padding="[56, 0, 0, 0]"
+                  data-container="body"
+                ></select>
+              </div>
+              <div>
+                <button type="button" class="btn btn-primary w-100">
+                  Browse&nbsp;<i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div> 
+    
+      <hr class="my-5">
     </div>
     
     <a class="github-fork-ribbon" href="https://github.com/s-a-nersisyan/isomiRTar" target="_blank" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
     
+    {% set no_hr = True %}
     {% include 'footer.html' %}
-
+    <script src="{{ url_for('static', filename='lib/jquery-3.6.0-dist/js/jquery-3.6.0.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/bootstrap-select-1.14.0-beta3-dist/js/bootstrap-select.min.js') }}"></script>
+    <script>
+      var data = {
+        "miRNAs": {{ miRNAs|safe }},
+        "isomiRs": {{ isomiRs|safe }},
+        "genes": {{ genes|safe }},
+        "cancers": {{ cancers|safe }}
+      };
+    </script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    
   </body>
 </html>

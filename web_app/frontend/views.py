@@ -12,7 +12,17 @@ from scipy.stats import linregress, spearmanr
 
 @frontend.route("/", methods=["GET"])
 def show_index():
-    return render_template("index.html")
+    isomiRs = get_all_isomiRs()
+    miRNAs = sorted(list({isomiR.split("|")[0] for isomiR in isomiRs}))
+    genes = get_all_genes()
+    cancers = get_all_cancers()
+    return render_template(
+        "index.html",
+        miRNAs=miRNAs,
+        isomiRs=isomiRs,
+        genes=genes,
+        cancers=cancers
+    )
 
 
 @frontend.route("/molecule/<molecule>", methods=["GET"])

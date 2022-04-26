@@ -2,7 +2,7 @@ from . import api
 from web_app import db
 from web_app.api.models import *
 
-from sqlalchemy import and_, or_, distinct
+from sqlalchemy import and_, or_, not_, distinct
 from flask import make_response, jsonify
 
 import pandas as pd
@@ -27,6 +27,20 @@ def check_cancer(cancer):
         return True
     else:
         return False
+
+
+def get_all_isomiRs():
+    results = Molecules.query.filter(Molecules.molecule.startswith("hsa")).all()
+    return sorted([row.molecule for row in results], key=lambda x: (x.split("|")[0], int(x.split("|")[1])))
+
+
+def get_all_genes():
+    results = Molecules.query.filter(not_(Molecules.molecule.startswith("hsa"))).order_by(Molecules.molecule).all()
+    return [row.molecule for row in results]
+
+
+def get_all_cancers():
+    return [row.cancer for row in Cancers.query.order_by(Cancers.cancer).all()]
 
 
 def get_molecule_expression_pan_cancer(molecule, units="tpm", add_asterisk=True):
