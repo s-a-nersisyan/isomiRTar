@@ -1,4 +1,6 @@
 # isomiRTar
+Explore 5'-isomiR targeting in cancer. Some documentation will appear here soon.
+
 ## How to work with dockerized DB
 First, cd to db/postgresql_docker. Then:
 - docker-compose up -d (run docker image)
