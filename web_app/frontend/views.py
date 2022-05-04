@@ -3,8 +3,7 @@ from web_app import app
 from web_app.api.db_functions import *
 
 
-from flask import render_template
-from flask import abort
+from flask import render_template, abort
 
 import json
 from scipy.stats import linregress, spearmanr
