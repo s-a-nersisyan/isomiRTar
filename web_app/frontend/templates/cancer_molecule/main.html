@@ -52,6 +52,8 @@
                   {% endif %}
                   <th class="align-top">Spearman's<br>correlation</th>
                   <th class="align-top"><i>p</i>-value</th>
+                  <th class="align-top">FDR<sub>local*</sub></th>
+                  <th class="align-top">FDR<sub>global*</sub></th>
                   {% if is_isomiR %}
                     <th class="align-top">Median<br>target<br>expression<br>(TPM)</th>
                   {% else %}
@@ -71,6 +73,8 @@
                     {% endif %}
                     <td >{{ row['spearman_corr'] }}</td>
                     <td >{{ row['spearman_p_value']|safe }}</td>
+                    <td >{{ row['spearman_fdr_loc']|safe }}</td>
+                    <td >{{ row['spearman_fdr_glob']|safe }}</td>
                     <td >{{ row['target_median_tpm'] if is_isomiR else row['isomir_median_tpm'] }}</td>
                     <td >{{ row['mirdb_score'] }}</td>
                     <td >{{ row['targetscan_score'] }}</td>
@@ -79,6 +83,12 @@
               </tbody>
             </table>
           {% endfor %}
+          <p>
+            *FDR<sub>local</sub> is calculated considering only <i>p</i>-values for
+            sequence-based predicted {{ "targets" if is_isomiR else "5'-isomiR regulators" }}
+            of {{ molecule }}. FDR<sub>global</sub> is calculated considering all
+            predicted interactions between 5'-isomiRs and putative targets in TCGA-{{ cancer }}.
+          </p>
         
         </div>
 

@@ -20,7 +20,9 @@
             Edges represent regulatory interactions which are both 
             sequence-based predicted (either by miRDB or TargetScan) and
             supported by a significant negative correlation of 
-            5'-isomiR and gene expression levels (Spearman's correlation &lt; -0.3, <i>p</i> &lt; 0.05).
+            5'-isomiR and gene expression levels (Spearman's correlation &lt; -0.3, FDR &lt; 0.05).
+            Note that FDRs are calculated with the use of all predicted interactions (not separately
+            for each 5'-isomiR).
             <mark style="background-color: #c7f464;">Green</mark> nodes and edges stand for canonical miRNAs, 
             <mark style="background-color: #ff6b6b;">red</mark> nodes and edges stand for non-canonical 5'-isomiRs and
             <mark style="background-color: #95d4f3;">blue</mark> nodes stand for target genes.
@@ -43,8 +45,9 @@
             We assume that 5'-isomiR
             downregulates target gene on mRNA level in TCGA-{{ cancer }}
             if their expression levels
-            are significantly anti-correlated (Spearman's correlation &lt; -0.3, <i>p</i> &lt; 0.05).
-
+            are significantly anti-correlated (Spearman's correlation &lt; -0.3, FDR &lt; 0.05).
+            Note that FDRs are calculated with the use of all predicted interactions (not separately
+            for each 5'-isomiR).
           </p>
           {% for he in [True, False] %}
             {% if he %}

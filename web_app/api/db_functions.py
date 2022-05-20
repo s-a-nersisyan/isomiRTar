@@ -165,13 +165,13 @@ def get_molecule_targeting_in_cancer(cancer, isomiR=None, target=None):
 def get_significant_interactions(cancer):
     '''
     Return list of isomiR->target interactions
-    with corr < -0.3, p < 0.05 and highly expressed isomiRs
+    with corr < -0.3, FDR < 0.05 and highly expressed isomiRs
     '''
     
     filt = and_(
         Targets_raw.cancer == cancer,
         Targets_raw.spearman_corr < -0.3,
-        Targets_raw.spearman_p_value < 0.05
+        Targets_raw.spearman_fdr < 0.05
     )
     
     query = (
@@ -214,3 +214,58 @@ def get_cancer_isomir_target(cancer, isomir, target):
     ).one()
 
     return result
+
+
+def get_pan_cancer_network():
+    # Find the number of cancers for each interaction
+    query = """
+        SELECT C.isomir, C.target, C.n_corr, D.n_he FROM 
+            (SELECT A.isomir, A.target, count(A.isomir) as n_corr FROM
+                (SELECT * FROM targets_raw WHERE spearman_corr < -0.3 AND spearman_p_value < 0.05) A
+                INNER JOIN
+                (SELECT molecule, cancer FROM expression WHERE highly_expressed = TRUE) B
+                ON A.isomir = B.molecule AND A.cancer = B.cancer
+            GROUP BY (A.isomir, A.target) ORDER BY n_corr DESC) C
+            INNER JOIN
+            (SELECT molecule, count(cancer) AS n_he FROM expression WHERE highly_expressed = TRUE GROUP BY molecule) D
+            ON C.isomir = D.molecule
+    """
+    df = pd.read_sql(query, db.engine)
+    df = df.loc[df["n_he"] >= 10]
+    df = df.loc[df["n_corr"] >= df["n_he"] / 2]
+    
+    edges = df.rename(columns={
+        "isomir": "from",
+        "target": "to"
+    })
+    edges["frac"] = df["n_corr"] / df["n_he"]
+    edges["width"] = 4 + (edges["n_corr"] - edges["n_corr"].min()) / (edges["n_corr"].max() - edges["n_corr"].min())*13
+
+    nodes = pd.DataFrame({"id": edges["from"].unique().tolist() + edges["to"].unique().tolist()})
+    nodes["label"] = nodes["id"]
+    nodes["size"] = 24
+    
+    nodes_from_size = edges[["from", "to"]].groupby("from").count().rename(columns={"to": "size"})
+    nodes_to_size = edges[["from", "to"]].groupby("to").count().rename(columns={"from": "size"})
+    nodes_size = pd.concat([nodes_from_size, nodes_to_size])
+    nodes = nodes_size.reset_index().rename(columns={"index": "id"})
+    nodes["label"] = nodes["id"]
+    nodes["size"] = 24 + (nodes["size"] - nodes["size"].min()) / (nodes["size"].max() - nodes["size"].min())*12
+    
+    nodes_dict = nodes.to_dict(orient="records")
+    for i in range(len(nodes_dict)):
+        nodes_dict[i]["font"] = {"size": 14*1.5}
+        nodes_dict[i]["font"] = {
+            "size": 25 + (nodes_dict[i]["size"] - nodes["size"].min()) / (nodes["size"].max() - nodes["size"].min())*5
+        }
+        if nodes_dict[i]["id"].startswith("hsa-"):
+            if nodes_dict[i]["id"].endswith("|0"):
+                nodes_dict[i]["color"] = "#c7f464"
+            else:
+                nodes_dict[i]["color"] = "#ff6b6b"
+        else:
+            nodes_dict[i]["color"] = "#95d4f3"
+    
+    edges_dict = edges.to_dict(orient="records")
+    
+    return {"nodes": nodes_dict, "edges": edges_dict}

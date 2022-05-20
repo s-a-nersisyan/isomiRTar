@@ -29,7 +29,7 @@ query2 = (
     Targets_raw.query
     .filter(and_(
         Targets_raw.spearman_corr < -0.3,
-        Targets_raw.spearman_p_value < 0.05
+        Targets_raw.spearman_fdr < 0.05
     ))
     .group_by(Targets_raw.isomir, Targets_raw.cancer)
     .with_entities(

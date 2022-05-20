@@ -7,6 +7,7 @@ from flask import render_template, abort
 
 import json
 from scipy.stats import linregress, spearmanr
+from statsmodels.stats.multitest import multipletests
 
 
 @frontend.route("/", methods=["GET"])
@@ -68,7 +69,9 @@ def show_molecule(molecule):
     targets_seq = targets_seq.astype("string").fillna("-")
         
     targets_conserved = []
-    targets_pan_cancer = targets_pan_cancer.loc[targets_pan_cancer["spearman_corr"] < -0.3]
+    targets_pan_cancer = targets_pan_cancer.loc[
+        (targets_pan_cancer["spearman_corr"] < -0.3) & (targets_pan_cancer["spearman_p_value"] < 0.05)
+    ]
     for target, df in targets_pan_cancer.groupby(index_col):
         anti_corr_cancers = df["cancer"].to_list()
         if len(anti_corr_cancers) >= 1:
@@ -157,22 +160,22 @@ def show_miRNA(miRNA):
 
 
 def df_to_network(interactions):
-    interactions = interactions.rename(columns={
+    edges = interactions.rename(columns={
         "isomir": "from",
         "target": "to"
     })
     
-    nodes_from_size = interactions[["from", "to"]].groupby("from").count().rename(columns={"to": "size"})
-    nodes_to_size = interactions[["from", "to"]].groupby("to").count().rename(columns={"from": "size"})
+    nodes_from_size = edges[["from", "to"]].groupby("from").count().rename(columns={"to": "size"})
+    nodes_to_size = edges[["from", "to"]].groupby("to").count().rename(columns={"from": "size"})
     nodes_size = pd.concat([nodes_from_size, nodes_to_size])
 
     nodes_from_median_tpm = (
-        interactions[["from", "isomir_median_tpm"]]
+        edges[["from", "isomir_median_tpm"]]
         .groupby("from").first()
         .rename(columns={"isomir_median_tpm": "median_tpm"})
     )
     nodes_to_median_tpm = (
-        interactions[["to", "target_median_tpm"]]
+        edges[["to", "target_median_tpm"]]
         .groupby("to").first()
         .rename(columns={"target_median_tpm": "median_tpm"})
     )
@@ -200,7 +203,7 @@ def df_to_network(interactions):
         nodes_dict[i]["title"] = f"""{nodes_dict[i]["id"]}
         Median expression: {nodes_dict[i]["median_tpm"]} {units}"""
     
-    edges_dict = interactions.to_dict(orient="records")
+    edges_dict = edges.to_dict(orient="records")
     for i in range(len(edges_dict)):
         mirdb_score = int(edges_dict[i]["mirdb_score"]) if not pd.isna(edges_dict[i]["mirdb_score"]) else "-"
         targetscan_score = edges_dict[i]["targetscan_score"] if not pd.isna(edges_dict[i]["targetscan_score"]) else "-"
@@ -208,8 +211,9 @@ def df_to_network(interactions):
         To: {edges_dict[i]["to"]}
         miRDB score: {mirdb_score}
         TargetScan score: {targetscan_score}
-        Spearman corr: {edges_dict[i]["spearman_corr"]}
-        Spearman p-value: {edges_dict[i]["spearman_p_value"]:.2e}
+        Spearman's correlation: {edges_dict[i]["spearman_corr"]}
+        Spearman's p-value: {edges_dict[i]["spearman_p_value"]:.2e}
+        Spearman's FDR: {edges_dict[i]["spearman_fdr"]:.2e}
         """
         for k in list(edges_dict[i].keys()):
             if k not in ["from", "to", "title"]:
@@ -241,7 +245,33 @@ def show_cancer(cancer):
 
 @frontend.route("/cancer_custom/<cancer>", methods=["GET"])
 def show_cancer_custom(cancer):
-    return render_template("cancer_custom/main.html")
+    if cancer == "pan-cancer":
+        network = get_pan_cancer_network()
+        cancer = "COAD"  # Hot fix
+        interactions = get_significant_interactions(cancer)
+    else:
+        interactions = pd.read_csv(f"web_app/api/cancer_custom/{cancer}.csv")
+        interactions["isomir_median_tpm"] = 0
+        interactions["target_median_tpm"] = 0
+        interactions["mirdb_score"] = 0
+        interactions["targetscan_score"] = 0
+        interactions["spearman_corr"] = 0
+        interactions["spearman_p_value"] = 0
+        interactions["spearman_fdr"] = 0
+        network = df_to_network(interactions)
+    
+    targets_summary = get_isomirs_targeting_summary_in_cancer(cancer)
+    targets_summary = targets_summary.sort_values("isomir_median_tpm", ascending=False)
+    targets_summary["isomir_median_tpm"] = (2**targets_summary["isomir_median_tpm"] - 1).round(1)
+    
+    return render_template(
+        "cancer/main.html",
+        page="cancer",
+        cancer=cancer,
+        interactions=interactions,
+        network=network,
+        targets_summary=targets_summary
+    )
 
 
 def html_p_value(p):
@@ -284,9 +314,14 @@ def show_cancer_molecule(cancer, molecule):
         index_col = "isomir"
         targets = get_molecule_targeting_in_cancer(cancer, target=molecule)
     
-    targets = targets.sort_values("spearman_corr").set_index(index_col)
-    targets["significant"] = (targets["spearman_corr"] < -0.3) & (targets["spearman_p_value"] < 0.05)
+    targets["spearman_fdr_loc"] = multipletests(targets["spearman_p_value"], method="fdr_bh")[1]
+    targets = targets.sort_values(["spearman_corr", "spearman_fdr_loc"]).set_index(index_col)
+    targets["significant"] = (targets["spearman_corr"] < -0.3) & (targets["spearman_fdr_loc"] < 0.05)
+    
     targets["spearman_p_value"] = [html_p_value(p) for p in targets["spearman_p_value"]]
+    targets["spearman_fdr_glob"] = [html_p_value(p) for p in targets["spearman_fdr"]]
+    targets["spearman_fdr_loc"] = [html_p_value(p) for p in targets["spearman_fdr_loc"]]
+    
     targets["mirdb_score"] = targets["mirdb_score"].astype("Int64")
     targets["isomir_median_tpm"] = (2**targets["isomir_median_tpm"] - 1).round(1)
     targets["target_median_tpm"] = (2**targets["target_median_tpm"] - 1).round(1)
