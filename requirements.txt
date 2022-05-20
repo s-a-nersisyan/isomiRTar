@@ -8,3 +8,4 @@ tqdm
 biopython
 natsort
 scipy
+statsmodels
