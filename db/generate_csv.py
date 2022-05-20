@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 
 from tqdm import tqdm
+from statsmodels.stats.multitest import multipletests
 
 
 #################
@@ -107,8 +108,10 @@ for fn in tqdm(os.listdir(f"{miRDB_path}/corr_analysis")):
     df = df.join(expr.rename(columns={"median_tpm": "target_median_tpm"}))
     df = df.reset_index()
     del df["index"]
+    
+    df["spearman_fdr"] = multipletests(df["spearman_p_value"], method="fdr_bh")[1]
 
-    df = df[["isomir", "target", "cancer", "mirdb_score", "targetscan_score", "spearman_corr", "spearman_p_value", "isomir_median_tpm", "target_median_tpm"]]
+    df = df[["isomir", "target", "cancer", "mirdb_score", "targetscan_score", "spearman_corr", "spearman_p_value", "spearman_fdr", "isomir_median_tpm", "target_median_tpm"]]
     df["mirdb_score"] = df["mirdb_score"].astype("Int64").astype("string")
     df["targetscan_score"] = df["targetscan_score"].round(1).astype("string")
     df["spearman_corr"] = df["spearman_corr"].round(2).astype("string")
