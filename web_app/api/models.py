@@ -28,6 +28,7 @@ class Targets_raw(db.Model):
     
     spearman_corr = db.Column(db.Numeric(precision=3, scale=2))
     spearman_p_value = db.Column(db.Float)
+    spearman_fdr = db.Column(db.Float)
     isomir_median_tpm = db.Column(db.Numeric(precision=4, scale=1), nullable=False)
     target_median_tpm = db.Column(db.Numeric(precision=4, scale=1), nullable=False)
 
