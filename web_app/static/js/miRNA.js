@@ -1,6 +1,6 @@
 var layout = {
   title: "",
-  height: data.length * data[0]["num_cancers"] * 30,
+  height: Math.max(data.length * data[0]["num_cancers"] * 30, 500),
   xaxis: {
     side: "top",
     title: {

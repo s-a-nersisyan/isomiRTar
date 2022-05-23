@@ -142,7 +142,7 @@ def show_miRNA(miRNA):
         for j, isomiR2 in enumerate(isomiRs):
             intersection_ = len(targets[isomiR1] & targets[isomiR2])
             union_ = len(targets[isomiR1] | targets[isomiR2])
-            jaccard_ = intersection_ / union_
+            jaccard_ = intersection_ / union_ if union_ != 0 else 0
             intersection[i].append(intersection_)
             union[i].append(union_)
             jaccard[i].append(jaccard_)
